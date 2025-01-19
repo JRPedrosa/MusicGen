@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isMobileDevice()) {
     isMobileTextDiv.textContent = 'Using a mobile device.';
-    optimizeForMobile();
+    // optimizeForMobile();
   } else {
     isMobileTextDiv.textContent = 'Using a desktop device.';
   }
@@ -69,18 +69,18 @@ setInterval(() => {
 
 const optimizeForMobile = () => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const isMobileTextDiv = document.querySelector('.optimization');
+  const optimizationDiv = document.querySelector('.optimization');
   console.log('isMobile', isMobile);
   console.log('window.Tone', window.Tone);
 
   if (isMobile && window.Tone) {
     // Reduce polyphony and complexity
+    optimizationDiv.textContent = 'optimized for mobile';
     window.Tone.context.latencyHint = 'playback';
-    isMobileTextDiv.textContent = 'optimized for mobile';
 
     console.log('Mobile optimizations applied.');
   } else {
-    isMobileTextDiv.textContent = 'NOT optimized for mobile';
+    optimizationDiv.textContent = 'NOT optimized for mobile';
     console.log('Not a mobile device or Tone not loaded.');
   }
 };
