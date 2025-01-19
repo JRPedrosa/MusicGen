@@ -87,6 +87,7 @@ export const allMelodySynths = [
 
 // Chord synth setup - using a softer sound
 export const chordSynth = new Tone.PolySynth(Tone.Synth, {
+  maxPolyphony: 1,
   oscillator: { type: 'sine' },
   envelope: {
     attack: 0.1,
