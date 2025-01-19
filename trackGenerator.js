@@ -49,9 +49,16 @@ export const generateNewTrack = () => {
   hiHat.volume.value = -30;
 
   // Add effects
-  const reverb = new Tone.Reverb(2.5).toDestination();
-  melodySynth.connect(reverb);
-  chordSynth.connect(reverb);
+  const reverbDiv = document.querySelector('.reverb');
+  if (!isMobileDevice()) {
+    reverbDiv.textContent = `with reverb`;
+
+    const reverb = new Tone.Reverb(2.5).toDestination();
+    melodySynth.connect(reverb);
+    chordSynth.connect(reverb);
+  } else {
+    reverbDiv.textContent = `no reverb`;
+  }
 
   //Generate chords
   const { chords, chordTime } = generateChords();
