@@ -1,7 +1,10 @@
+// Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
+
 import { generateNewTrack } from './trackGenerator.js';
 import { isMobileDevice } from './utils.js';
 
 let isGenerating = false;
+// Tone.setContext(new Tone.Context({ latencyHint: 'playback' }), true);
 
 // Button actions
 document.getElementById('new-track').addEventListener('click', async () => {
@@ -41,10 +44,19 @@ window.addEventListener('beforeunload', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const isMobileTextDiv = document.querySelector('.ismobile');
+  const regexDiv = document.querySelector('.regex');
+  const functionDiv = document.querySelector('.function');
 
-  if (isMobileDevice()) {
+  const isMobileRegEx = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const isMobileFunction = isMobileDevice();
+
+  regexDiv.textContent = `regex: ${isMobileRegEx}`;
+  functionDiv.textContent = `function: ${isMobileFunction}`;
+
+  if (isMobileRegEx || isMobileFunction) {
     isMobileTextDiv.textContent = 'Using a mobile device.';
-    // optimizeForMobile();
+    // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
+    // window.Tone.context.latencyHint = 'playback';
   } else {
     isMobileTextDiv.textContent = 'Using a desktop device.';
   }
@@ -52,7 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onload = () => {
     if (window.Tone) {
       console.log('Tone.js is loaded');
-      optimizeForMobile();
+      // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
+      // window.Tone.context.latencyHint = 'playback';7
+      // isMobileTextDiv.textContent = 'Using a mobile device. onLoad()';
+      const context = Tone.getContext();
+      console.log('## context', context);
+      // Tone.setContext(context({ latencyHint: 'playback' }));
+      context._latencyHint = 'playback';
+
+      generateNewTrack();
     } else {
       console.error('Tone.js failed to load');
     }
@@ -67,23 +87,5 @@ setInterval(() => {
   }
 }, 1000);
 
-const optimizeForMobile = () => {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const optimizationDiv = document.querySelector('.optimization');
-  console.log('isMobile', isMobile);
-  console.log('window.Tone', window.Tone);
-
-  if (isMobile && window.Tone) {
-    // Reduce polyphony and complexity
-    optimizationDiv.textContent = 'optimized for mobile';
-    window.Tone.context.latencyHint = 'playback';
-
-    console.log('Mobile optimizations applied.');
-  } else {
-    optimizationDiv.textContent = 'NOT optimized for mobile';
-    console.log('Not a mobile device or Tone not loaded.');
-  }
-};
-
 // Initialize first track on page load
-generateNewTrack();
+// generateNewTrack();
