@@ -29,7 +29,7 @@ document.getElementById('new-track').addEventListener('click', async () => {
 
 document.getElementById('play').addEventListener('click', () => {
   // Tone.Transport.start();
-  Tone.Transport.start('+0.1');
+  Tone.Transport.start('+0.2');
 });
 
 document.getElementById('stop').addEventListener('click', () => {
@@ -67,12 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
       // window.Tone.context.latencyHint = 'playback';7
       // isMobileTextDiv.textContent = 'Using a mobile device. onLoad()';
+      const latencyDiv = document.querySelector('.latency');
+
       const context = Tone.getContext();
       console.log('## context', context);
       // Tone.setContext(context({ latencyHint: 'playback' }));
       context._latencyHint = 'playback';
-      context._lookAhead = 1;
-      // context.updateInterval = 0.1;
+      context._lookAhead = 1.5;
+      context.updateInterval = 0.2;
+      latencyDiv.textContent = `LookAhead: ${context._lookAhead} Interval: ${context.updateInterval}`;
 
       generateNewTrack();
     } else {
