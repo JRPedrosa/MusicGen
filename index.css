@@ -17,6 +17,10 @@ body {
   margin-top: 15px;
 }
 
+.title {
+  margin-bottom: 40px;
+  font-size: 30px;
+}
 button {
   padding: 10px 20px;
   font-size: 16px;
