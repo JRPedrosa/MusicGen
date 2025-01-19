@@ -5,7 +5,7 @@ export const generateMelody = (chords, chordTime) => {
   const melody = [];
   let lastNoteWasOutOfChord = false;
   let lastNote;
-  //   for (let i = 0; i <= melodyLength; i++) {
+
   while (melodyTime < chordTime * 2 - 3) {
     // Find the current chord based on the time
     const currentChordIndex =
@@ -20,8 +20,6 @@ export const generateMelody = (chords, chordTime) => {
 
     let note;
     let isOutOfChord = false;
-    console.log('---- --- currentChordIndex ---- --- -- ', currentChordIndex);
-    console.log('lastNoteWasOutOfChord', lastNoteWasOutOfChord);
     if (!lastNoteWasOutOfChord && Math.random() < 0.5) {
       const filteredScaleNotesOutChord = settings.scale.filter((note) => {
         const noteRoot = note.charAt(0); // Get the first letter of the note (C, D, E, etc.)
@@ -62,13 +60,7 @@ export const generateMelody = (chords, chordTime) => {
       duration: duration,
     });
 
-    console.log(currentChord);
-    console.log('note', note);
-    console.log('isOutOfChord', isOutOfChord);
-    console.log('duration', duration);
-
     if (isOutOfChord) {
-      console.log('setting lastNoteWasOutOfChord to true');
       lastNoteWasOutOfChord = true;
     }
 
@@ -84,15 +76,12 @@ const getClosestNoteInChord = (lastNote, scaleToUse) => {
   let indexOfNote = scaleToUse.findIndex((ele) => ele === lastNote);
   const upOrDown = Math.random() < 0.5 ? -1 : 1;
   let finalIndex;
-  console.log('## lastNote', lastNote);
   if (lastNote === undefined) {
-    console.log('## lastNote 2', lastNote);
     finalIndex = 2;
     indexOfNote = 2;
   }
 
   if (Math.random() < 0.1) {
-    console.log('### UNDEFINED PURPOSE');
     return undefined;
   }
 

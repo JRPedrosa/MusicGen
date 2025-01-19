@@ -6,15 +6,12 @@ export const generateChords = () => {
       Math.floor(Math.random() * commonProgressions.length)
     ],
   ];
-  console.log('Selected progression:', selectedProgression);
 
   const chords = [];
   let chordTime = 0;
 
   for (let i = 0; i < selectedProgression.length; i++) {
     const chordSymbol = selectedProgression[i];
-
-    console.log(`Adding chord ${chordSymbol} at time ${chordTime}`);
 
     chords.push({
       time: chordTime,

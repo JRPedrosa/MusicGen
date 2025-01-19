@@ -15,6 +15,7 @@ import {
 } from './synthSetup.js';
 import { generateMelody } from './melodyGen.js';
 import { generateChords } from './chordGen.js';
+import { isMobileDevice } from './utils.js';
 
 let melodySynth;
 let melodySequence;
@@ -25,6 +26,7 @@ let snareSequence;
 let hiHatSequence;
 
 export const generateNewTrack = () => {
+  disposeAll();
   if (melodySequence) melodySequence.dispose();
   if (chordSequence) chordSequence.dispose();
   if (drumSequence) drumSequence.dispose();
@@ -47,19 +49,18 @@ export const generateNewTrack = () => {
   hiHat.volume.value = -30;
 
   // Add effects
-  const reverb = new Tone.Reverb(2.5).toDestination();
-  melodySynth.connect(reverb);
-  chordSynth.connect(reverb);
+  if (!isMobileDevice()) {
+    const reverb = new Tone.Reverb(2.5).toDestination();
+    melodySynth.connect(reverb);
+    chordSynth.connect(reverb);
+  }
 
   //Generate chords
   const { chords, chordTime } = generateChords();
-  console.log('chords', chords);
 
   //Generate Melody
   const { melody, melodyTime } = generateMelody(chords, chordTime);
 
-  console.log('melodyTime', melodyTime);
-  console.log('chordTime', chordTime);
   console.log(chords.map((c) => c.name));
   console.log('melody', melody);
 
@@ -112,3 +113,18 @@ export const generateNewTrack = () => {
   console.log('melodySynth', allMelodySynths[randIndex].name);
   console.log('Tempo', Tone.Transport.bpm.value);
 };
+
+function disposeAll() {
+  if (melodySequence) melodySequence.dispose();
+  if (chordSequence) chordSequence.dispose();
+  if (drumSequence) drumSequence.dispose();
+  if (kickSequence) kickSequence.dispose();
+  if (snareSequence) snareSequence.dispose();
+  if (hiHatSequence) hiHatSequence.dispose();
+
+  chordSequence = null;
+  kickSequence = null;
+  snareSequence = null;
+  hiHatSequence = null;
+  melodySynth = null;
+}
