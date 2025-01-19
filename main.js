@@ -69,7 +69,7 @@ setInterval(() => {
 
 const optimizeForMobile = () => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const isMobileTextDiv = document.querySelector('.ismobile');
+  const isMobileTextDiv = document.querySelector('.optimization');
   console.log('isMobile', isMobile);
   console.log('window.Tone', window.Tone);
 
