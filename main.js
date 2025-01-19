@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('## context', context);
       // Tone.setContext(context({ latencyHint: 'playback' }));
       context._latencyHint = 'playback';
-      context._lookAhead = 0.5;
-      context.updateInterval = 0.1;
+      context._lookAhead = 1;
+      // context.updateInterval = 0.1;
 
       generateNewTrack();
     } else {
