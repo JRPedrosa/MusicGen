@@ -110,19 +110,7 @@ export const kick = new Tone.MembraneSynth({
   },
 }).toDestination();
 
-export const snareDrum = new Tone.MembraneSynth({
-  pitchDecay: 0.05,
-  octaves: 4,
-  oscillator: { type: 'triangle' },
-  envelope: {
-    attack: 0.001,
-    decay: 0.2,
-    sustain: 0,
-    release: 0.2,
-  },
-}).toDestination();
-
-export const snareNoise = new Tone.NoiseSynth({
+export const snare = new Tone.NoiseSynth({
   noise: {
     type: 'white',
     playbackRate: 3,
@@ -134,15 +122,6 @@ export const snareNoise = new Tone.NoiseSynth({
     release: 0.2,
   },
 }).toDestination();
-
-// Combine them into a single instrument
-export const snare = {
-  triggerAttackRelease: (note, duration, time, velocity = 1) => {
-    snareDrum.triggerAttackRelease(note, duration, time, velocity * 0.5);
-    snareNoise.triggerAttackRelease(duration, time, velocity * 0.5);
-  },
-  volume: { value: -10 },
-};
 
 export const hiHat = new Tone.MetalSynth({
   frequency: 200,

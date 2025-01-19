@@ -1,10 +1,7 @@
-// Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
-
 import { generateNewTrack } from './trackGenerator.js';
 import { isMobileDevice } from './utils.js';
 
 let isGenerating = false;
-// Tone.setContext(new Tone.Context({ latencyHint: 'playback' }), true);
 
 // Button actions
 document.getElementById('new-track').addEventListener('click', async () => {
@@ -28,7 +25,6 @@ document.getElementById('new-track').addEventListener('click', async () => {
 });
 
 document.getElementById('play').addEventListener('click', () => {
-  // Tone.Transport.start();
   Tone.Transport.start('+0.2');
 });
 
@@ -55,8 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isMobileRegEx || isMobileFunction) {
     isMobileTextDiv.textContent = 'Using a mobile device.';
-    // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
-    // window.Tone.context.latencyHint = 'playback';
   } else {
     isMobileTextDiv.textContent = 'Using a desktop device.';
   }
@@ -64,17 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onload = () => {
     if (window.Tone) {
       console.log('Tone.js is loaded');
-      // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }));
-      // window.Tone.context.latencyHint = 'playback';7
-      // isMobileTextDiv.textContent = 'Using a mobile device. onLoad()';
       const latencyDiv = document.querySelector('.latency');
-
       const context = Tone.getContext();
       console.log('## context', context);
-      // Tone.setContext(context({ latencyHint: 'playback' }));
+
       context._latencyHint = 'playback';
-      context._lookAhead = 1.5;
-      context.updateInterval = 0.2;
+      context._lookAhead = 0.5;
+      context.updateInterval = 0.1;
       latencyDiv.textContent = `LookAhead: ${context._lookAhead} Interval: ${context.updateInterval}`;
 
       generateNewTrack();
@@ -91,6 +81,3 @@ setInterval(() => {
     cpuDiv.textContent = `High CPU load!`;
   }
 }, 1000);
-
-// Initialize first track on page load
-// generateNewTrack();

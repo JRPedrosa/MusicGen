@@ -9,8 +9,6 @@ import {
   chordSynth,
   kick,
   snare,
-  snareNoise,
-  snareDrum,
   hiHat,
 } from './synthSetup.js';
 import { generateMelody } from './melodyGen.js';
@@ -43,9 +41,8 @@ export const generateNewTrack = () => {
 
   // Set Volumes
   chordSynth.volume.value = -12;
-  kick.volume.value = -6;
-  snareNoise.volume.value = -10;
-  snareDrum.volume.value = -15;
+  kick.volume.value = -5;
+  snare.volume.value = -20;
   hiHat.volume.value = -30;
 
   // Add effects
@@ -89,8 +86,8 @@ export const generateNewTrack = () => {
     kick.triggerAttackRelease(event.note, '8n', time);
   }, kickPattern).start(0);
 
-  snareSequence = new Tone.Part((time, event) => {
-    snare.triggerAttackRelease(event.note, '8n', time);
+  snareSequence = new Tone.Part((time) => {
+    snare.triggerAttackRelease('8n', time);
   }, snarePattern).start(0);
 
   hiHatSequence = new Tone.Part((time, event) => {
@@ -110,9 +107,9 @@ export const generateNewTrack = () => {
   // Set loop lengths in seconds
   melodySequence.loopEnd = adjustedMelodyTime; // Loop length matches our generated melody
   chordSequence.loopEnd = chordTime; // Loop length matches our chord progression
-  kickSequence.loopEnd = '2m';
-  snareSequence.loopEnd = '2m';
-  hiHatSequence.loopEnd = '2m';
+  kickSequence.loopEnd = '1m';
+  snareSequence.loopEnd = '1m';
+  hiHatSequence.loopEnd = '1m';
 
   console.log('New track generated:', settings);
   console.log('melodySynth', allMelodySynths[randIndex].name);
