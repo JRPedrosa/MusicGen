@@ -26,7 +26,6 @@ export const settings = {
     'G5',
   ],
   durations: ['4n', '2n', '4n'],
-  tempo: Math.floor(Math.random() * 70) + 70,
 };
 
 export const commonProgressions = [

@@ -5,8 +5,7 @@ import {
   hiHatPattern,
 } from './constants.js';
 import {
-  melody1,
-  melody2,
+  allMelodySynths,
   chordSynth,
   kick,
   snare,
@@ -34,13 +33,13 @@ export const generateNewTrack = () => {
   if (hiHatSequence) hiHatSequence.dispose();
 
   //Set Tempo
-  Tone.Transport.bpm.value = settings.tempo;
+  Tone.Transport.bpm.value = Math.floor(Math.random() * 70) + 70; // Tempo between 70/140 bpm
 
   //Choose a melody synth
-  melodySynth = Math.random() < 0.5 ? melody1 : melody2;
+  const randIndex = Math.floor(Math.random() * allMelodySynths.length);
+  melodySynth = allMelodySynths[randIndex].sound;
 
   // Set Volumes
-  melodySynth.volume.value = -15;
   chordSynth.volume.value = -12;
   kick.volume.value = -6;
   snareNoise.volume.value = -10;
@@ -110,4 +109,6 @@ export const generateNewTrack = () => {
   hiHatSequence.loopEnd = '2m';
 
   console.log('New track generated:', settings);
+  console.log('melodySynth', allMelodySynths[randIndex].name);
+  console.log('Tempo', Tone.Transport.bpm.value);
 };
