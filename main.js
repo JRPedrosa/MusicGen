@@ -20,7 +20,7 @@ const configureToneJs = () => {
   const context = Tone.getContext();
   context._latencyHint = 'playback';
   context._lookAhead = 0.5;
-  context.updateInterval = 0.0005;
+  context.updateInterval = 0.01;
   const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 
@@ -33,7 +33,7 @@ const configureToneJs = () => {
 // Transport Controls
 const startTransport = () => {
   console.log('## Play');
-  Tone.Transport.start('+0.2');
+  Tone.Transport.start('+0.5');
 };
 
 const stopTransport = () => {

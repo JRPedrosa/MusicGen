@@ -128,7 +128,7 @@ export const generateNewTrack = () => {
   }, chords).start(0);
 
   // Create drum sequences
-  sequences.kick = createDrumSequence(
+  /* sequences.kick = createDrumSequence(
     'kick',
     Math.random() > 0.5 ? kick : kick1,
     kickPattern1,
@@ -147,7 +147,7 @@ export const generateNewTrack = () => {
     Math.random() > 0.5 ? hiHat : hiHat1,
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
     '32n',
-  );
+  ); */
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
@@ -156,9 +156,9 @@ export const generateNewTrack = () => {
   // Initialize all sequences
   initializeSequence(sequences.melody, adjustedMelodyTime);
   initializeSequence(sequences.chord, chordTime);
-  Object.entries(sequences)
+  /* Object.entries(sequences)
     .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
-    .forEach(([, sequence]) => initializeSequence(sequence, '1m'));
+    .forEach(([, sequence]) => initializeSequence(sequence, '1m')); */
 
   console.log({
     key,
@@ -170,7 +170,6 @@ export const generateNewTrack = () => {
   Object.values(sequences).forEach((sequence) => {
     if (sequence && isMobileDevice()) {
       sequence.humanize = false; // Disable humanization for better performance
-      // sequence.probability = 1; // Ensure all notes play
     }
   });
 
