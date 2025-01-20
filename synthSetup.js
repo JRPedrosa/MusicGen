@@ -85,7 +85,6 @@ export const allMelodySynths = [
   { sound: melody3, name: 'melody3' },
 ];
 
-// Chord synth setup - using a softer sound
 export const chordSynth = new Tone.PolySynth(Tone.Synth, {
   maxPolyphony: 1,
   oscillator: { type: 'sine' },
@@ -101,7 +100,7 @@ export const chordSynth = new Tone.PolySynth(Tone.Synth, {
 export const kick = new Tone.MembraneSynth({
   pitchDecay: 0.05,
   octaves: 5,
-  oscillator: { type: 'sine' }, // Changed to sine for deeper sound
+  oscillator: { type: 'sine' },
   envelope: {
     attack: 0.001,
     decay: 0.4,
@@ -110,16 +109,43 @@ export const kick = new Tone.MembraneSynth({
   },
 }).toDestination();
 
+export const kick1 = new Tone.MembraneSynth({
+  pitchDecay: 0.05,
+  octaves: 5,
+  oscillator: { type: 'triangle' },
+  envelope: {
+    attack: 0.001,
+    decay: 0.3,
+    sustain: 0.02,
+    release: 0.2,
+  },
+}).toDestination();
+
 export const snare = new Tone.NoiseSynth({
   noise: {
     type: 'white',
     playbackRate: 3,
+    volume: 5,
   },
   envelope: {
     attack: 0.001,
     decay: 0.2,
     sustain: 0,
     release: 0.2,
+  },
+}).toDestination();
+
+export const snare1 = new Tone.NoiseSynth({
+  noise: {
+    type: 'pink',
+    playbackRate: 3,
+    volume: 10,
+  },
+  envelope: {
+    attack: 0.01,
+    decay: 0.2,
+    sustain: 0,
+    release: 0.4,
   },
 }).toDestination();
 
@@ -135,4 +161,18 @@ export const hiHat = new Tone.MetalSynth({
   modulationIndex: 32,
   resonance: 4000,
   octaves: 1.5,
+}).toDestination();
+
+export const hiHat1 = new Tone.MetalSynth({
+  frequency: 100,
+  envelope: {
+    attack: 0.001,
+    decay: 0.1,
+    sustain: 0,
+    release: 0.05,
+  },
+  harmonicity: 5.1,
+  modulationIndex: 32,
+  resonance: 3000,
+  octaves: 1,
 }).toDestination();

@@ -1,16 +1,21 @@
 import {
   settings,
-  kickPattern,
-  snarePattern,
-  hiHatPattern,
+  kickPattern1,
+  snarePattern1,
+  snarePattern2,
+  hiHatPattern1,
+  hiHatPattern2,
   allChords,
 } from './constants.js';
 import {
   allMelodySynths,
   chordSynth,
   kick,
+  kick1,
   snare,
+  snare1,
   hiHat,
+  hiHat1,
 } from './synthSetup.js';
 import { generateMelody } from './melodyGen.js';
 import { generateChords } from './chordGen.js';
@@ -48,19 +53,19 @@ export const generateNewTrack = () => {
   // Set Volumes
   chordSynth.volume.value = -12;
   kick.volume.value = -5;
-  snare.volume.value = -20;
-  hiHat.volume.value = -30;
+  kick1.volume.value = -5;
+
+  snare.volume.value = -22;
+  snare1.volume.value = -20;
+
+  hiHat.volume.value = -35;
+  hiHat1.volume.value = -35;
 
   // Add effects
-  const reverbDiv = document.querySelector('.reverb');
   if (!isMobileDevice()) {
-    reverbDiv.textContent = `with reverb`;
-
     const reverb = new Tone.Reverb(2.5).toDestination();
     melodySynth.connect(reverb);
     chordSynth.connect(reverb);
-  } else {
-    reverbDiv.textContent = `no reverb`;
   }
 
   //Generate chords
@@ -88,19 +93,28 @@ export const generateNewTrack = () => {
   }, chords).start(0);
 
   // Create separate sequences for each drum
+  const kickToUse = Math.random() > 0.5 ? kick : kick1;
   kickSequence = new Tone.Part((time, event) => {
-    kick.triggerAttackRelease(event.note, '8n', time);
-  }, kickPattern).start(0);
+    kickToUse.triggerAttackRelease(event.note, '8n', time);
+  }, kickPattern1).start(0);
 
-  snareSequence = new Tone.Part((time) => {
-    snare.triggerAttackRelease('8n', time);
-  }, snarePattern).start(0);
+  const snareToUse = Math.random() > 0.5 ? snare : snare1;
+  snareSequence = new Tone.Part(
+    (time) => {
+      snareToUse.triggerAttackRelease('8n', time);
+    },
+    Math.random() > 0.3 ? snarePattern1 : snarePattern2,
+  ).start(0);
 
-  hiHatSequence = new Tone.Part((time, event) => {
-    hiHat.triggerAttackRelease(event.note, '32n', time);
-  }, hiHatPattern).start(0);
+  const hiHatToUse = Math.random() > 0.5 ? hiHat : hiHat1;
+  hiHatSequence = new Tone.Part(
+    (time, event) => {
+      hiHatToUse.triggerAttackRelease(event.note, '32n', time);
+    },
+    Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
+  ).start(0);
 
-  // Set loop points
+  // Set loops
   melodySequence.loop = true;
   chordSequence.loop = true;
   kickSequence.loop = true;
@@ -121,6 +135,8 @@ export const generateNewTrack = () => {
   console.log('melodySynth', allMelodySynths[randIndex1].name);
   console.log('Tempo', Tone.Transport.bpm.value);
   console.log('## key', key);
+
+  return { key, tempo: Math.floor(Tone.Transport.bpm.value) };
 };
 
 function disposeAll() {

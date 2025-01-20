@@ -1,74 +1,87 @@
 import { generateNewTrack } from './trackGenerator.js';
-import { isMobileDevice } from './utils.js';
 
 let isGenerating = false;
 
-// Button actions
-document.getElementById('new-track').addEventListener('click', async () => {
-  const time = Date.now();
+const elements = {
+  bench: document.querySelector('.bench'),
+  cpu: document.querySelector('.cpu'),
+  buttons: {
+    newTrack: document.getElementById('new-track'),
+    play: document.getElementById('play'),
+    stop: document.getElementById('stop'),
+  },
+  key: document.getElementById('key'),
+  tempo: document.getElementById('tempo'),
+};
+
+// Tone.js Configuration
+const configureToneJs = () => {
+  const context = Tone.getContext();
+  context._latencyHint = 'playback';
+  context._lookAhead = 0.5;
+  context.updateInterval = 0.1;
+};
+
+// Transport Controls
+const startTransport = () => Tone.Transport.start('+0.2');
+
+const stopTransport = () => {
+  Tone.Transport.clear();
+  Tone.Transport.stop();
+};
+
+const disposeTransport = () => Tone.Transport.dispose();
+
+// Track Generation
+const generateTrack = async () => {
   if (isGenerating) return;
-  isGenerating = true;
 
-  Tone.Transport.clear();
-  Tone.Transport.stop();
-  Tone.Transport.cancel(0);
+  try {
+    isGenerating = true;
 
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  generateNewTrack();
-
-  isGenerating = false;
-  const bench = Date.now() - time;
-
-  const benchDiv = document.querySelector('.bench');
-  benchDiv.textContent = `TimeToGenerate: ${bench}ms`;
-});
-
-document.getElementById('play').addEventListener('click', () => {
-  Tone.Transport.start('+0.2');
-});
-
-document.getElementById('stop').addEventListener('click', () => {
-  Tone.Transport.clear();
-  Tone.Transport.stop();
-});
-
-window.addEventListener('beforeunload', () => {
-  console.log('### UNLOAD');
-  Tone.Transport.dispose();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const isMobileTextDiv = document.querySelector('.ismobile');
-  if (isMobileDevice()) {
-    isMobileTextDiv.textContent = 'Using a mobile device.';
-  } else {
-    isMobileTextDiv.textContent = 'Using a desktop device.';
+    stopTransport();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const { key, tempo } = generateNewTrack();
+    elements.key.textContent = `Key: ${key}`;
+    elements.tempo.textContent = `BPM: ${tempo}`;
+  } catch (error) {
+    console.error('Error generating track:', error);
+    elements.bench.textContent = 'Error generating track';
+  } finally {
+    isGenerating = false;
   }
+};
 
-  window.onload = () => {
-    if (window.Tone) {
+// CPU Monitoring
+const setupCPUMonitoring = () => {
+  setInterval(() => {
+    const usage = Tone.context.currentTime - Tone.context.currentTime;
+    elements.cpu.textContent = usage > 0.1 ? 'High CPU load!' : '';
+  }, 1000);
+};
+
+// Event Listeners
+const setupEventListeners = () => {
+  elements.buttons.newTrack.addEventListener('click', generateTrack);
+  elements.buttons.play.addEventListener('click', startTransport);
+  elements.buttons.stop.addEventListener('click', stopTransport);
+
+  window.addEventListener('beforeunload', disposeTransport);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    window.onload = () => {
+      if (!window.Tone) {
+        console.error('Tone.js failed to load');
+        elements.bench.textContent = 'Error: Tone.js failed to load';
+        return;
+      }
+
       console.log('Tone.js is loaded');
-      const latencyDiv = document.querySelector('.latency');
-      const context = Tone.getContext();
-      console.log('## context', context);
+      configureToneJs();
+      generateTrack();
+    };
+  });
+};
 
-      context._latencyHint = 'playback';
-      context._lookAhead = 0.5;
-      context.updateInterval = 0.1;
-      latencyDiv.textContent = `LookAhead: ${context._lookAhead} Interval: ${context.updateInterval}`;
-
-      generateNewTrack();
-    } else {
-      console.error('Tone.js failed to load');
-    }
-  };
-});
-
-setInterval(() => {
-  const usage = Tone.context.currentTime - Tone.context.currentTime;
-  if (usage > 0.1) {
-    const cpuDiv = document.querySelector('.cpu');
-    cpuDiv.textContent = `High CPU load!`;
-  }
-}, 1000);
+setupEventListeners();
+setupCPUMonitoring();

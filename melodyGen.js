@@ -1,54 +1,106 @@
 import { settings } from './constants.js';
 
+const PROBABILITIES = {
+  OUT_OF_CHORD: 0.5,
+  CLOSEST_NOTE: 0.8,
+  REST: 0.1,
+};
+
+const isNoteInChord = (note, chord) => {
+  return chord.some((chordNote) => chordNote.charAt(0) === note.charAt(0));
+};
+
+const getFilteredScaleNotes = (scale, chord, includeChordNotes = true) => {
+  return scale.filter(
+    (note) => includeChordNotes === isNoteInChord(note, chord),
+  );
+};
+
+const determineNextNote = (params) => {
+  const { lastNote, lastNoteWasOutOfChord, currentChord, key } = params;
+
+  // If last note was in, has 50% chance of choosing an out note
+  if (!lastNoteWasOutOfChord && Math.random() < PROBABILITIES.OUT_OF_CHORD) {
+    const outOfChordNotes = getFilteredScaleNotes(
+      settings.allScales[key],
+      currentChord,
+      false,
+    );
+    return {
+      note: getClosestNoteInChord(lastNote, outOfChordNotes, key),
+      isOutOfChord: true,
+    };
+  }
+
+  // Else choose note within chord
+  const inChordNotes = getFilteredScaleNotes(
+    settings.allScales[key],
+    currentChord,
+    true,
+  );
+  const useClosestNote =
+    lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE; // If last note was out will always resolve to the closest, else has 20% chance to jump around
+  const note = useClosestNote
+    ? getClosestNoteInChord(lastNote, inChordNotes, key)
+    : inChordNotes[Math.floor(Math.random() * inChordNotes.length)];
+
+  return {
+    note,
+    isOutOfChord: false,
+  };
+};
+
+const getClosestNoteInChord = (lastNote, scaleToUse, key) => {
+  if (Math.random() < PROBABILITIES.REST) {
+    return undefined;
+  }
+
+  if (!lastNote) {
+    return scaleToUse[2]; // Default to third note in scale
+  }
+
+  const scale = lastNote === undefined ? settings.allScales[key] : scaleToUse;
+  const currentIndex = scale.findIndex((note) => note === lastNote);
+
+  if (currentIndex === -1) {
+    return handleOutOfScaleNote(lastNote, key);
+  }
+
+  return getAdjacentNote(currentIndex, scale);
+};
+
+const handleOutOfScaleNote = (lastNote, key) => {
+  const scale = settings.allScales[key];
+  const index = scale.findIndex((note) => note === lastNote);
+  return getAdjacentNote(index, scale);
+};
+
+const getAdjacentNote = (index, scale) => {
+  const upOrDown = Math.random() < 0.5 ? -1 : 1;
+  if (index === 0) return scale[1];
+  if (index === scale.length - 1) return scale[scale.length - 2];
+  return scale[index + upOrDown];
+};
+
 export const generateMelody = (chords, chordTime, key) => {
-  let melodyTime = 0;
   const melody = [];
+  let melodyTime = 0;
   let lastNoteWasOutOfChord = false;
   let lastNote;
 
-  while (melodyTime < chordTime * 2 - 3) {
-    // Find the current chord based on the time
+  const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
+
+  while (melodyTime < maxMelodyTime) {
     const currentChordIndex =
       Math.floor(melodyTime / Tone.Time('1n').toSeconds()) % chords.length;
     const currentChord = chords[currentChordIndex].notes;
 
-    // Filter the scale to only include notes that share the same first letter as the current chord's notes
-    const filteredScaleNotesInChord = settings.allScales[key].filter((note) => {
-      const noteRoot = note.charAt(0); // Get the first letter of the note (C, D, E, etc.)
-      return currentChord.some((chordNote) => chordNote.charAt(0) === noteRoot); // Check if the note's root matches the chord's root
+    const { note, isOutOfChord } = determineNextNote({
+      lastNote,
+      lastNoteWasOutOfChord,
+      currentChord,
+      key,
     });
-
-    let note;
-    let isOutOfChord = false;
-    if (!lastNoteWasOutOfChord && Math.random() < 0.5) {
-      const filteredScaleNotesOutChord = settings.allScales[key].filter(
-        (note) => {
-          const noteRoot = note.charAt(0); // Get the first letter of the note (C, D, E, etc.)
-          return currentChord.every(
-            (chordNote) => chordNote.charAt(0) !== noteRoot,
-          ); // Check if the note's root matches the chord's root
-        },
-      );
-
-      note = getClosestNoteInChord(lastNote, filteredScaleNotesOutChord, key);
-
-      isOutOfChord = true;
-    } else {
-      // If the note is in the chord or we are continuing the chord, pick a note from the chord
-      //   note = currentChord[Math.floor(Math.random() * currentChord.length)];
-
-      if (lastNoteWasOutOfChord || Math.random() < 0.8) {
-        note = getClosestNoteInChord(lastNote, filteredScaleNotesInChord, key);
-      } else {
-        note =
-          filteredScaleNotesInChord[
-            Math.floor(Math.random() * filteredScaleNotesInChord.length)
-          ];
-      }
-
-      isOutOfChord = false;
-      lastNoteWasOutOfChord = false;
-    }
 
     const duration = isOutOfChord
       ? '8n'
@@ -56,59 +108,16 @@ export const generateMelody = (chords, chordTime, key) => {
           Math.floor(Math.random() * settings.durations.length)
         ];
 
-    console.log('## currentChord', currentChord);
-    console.log('## note', note);
-    console.log('## isOutOfChord', isOutOfChord);
-
     melody.push({
       time: melodyTime,
-      note: note,
-      duration: duration,
+      note,
+      duration,
     });
 
-    if (isOutOfChord) {
-      lastNoteWasOutOfChord = true;
-    }
-
-    // Advance time by the actual duration of the note
     melodyTime += Tone.Time(duration).toSeconds();
     lastNote = note;
+    lastNoteWasOutOfChord = isOutOfChord;
   }
 
   return { melody, melodyTime };
-};
-
-const getClosestNoteInChord = (lastNote, scaleToUse, key) => {
-  let indexOfNote = scaleToUse.findIndex((ele) => ele === lastNote);
-  const upOrDown = Math.random() < 0.5 ? -1 : 1;
-  let finalIndex;
-  if (lastNote === undefined) {
-    finalIndex = 2;
-    indexOfNote = 2;
-  }
-
-  if (Math.random() < 0.1) {
-    return undefined;
-  }
-
-  if (indexOfNote === -1 && lastNote !== undefined) {
-    let newIndex = settings.allScales[key].findIndex((ele) => ele === lastNote);
-    if (newIndex === 0) {
-      finalIndex = 1;
-    } else if (newIndex === settings.allScales[key].length - 1) {
-      finalIndex = settings.allScales[key].length - 2;
-    } else {
-      finalIndex = newIndex + upOrDown;
-    }
-    return settings.allScales[key][finalIndex];
-  } else {
-    if (indexOfNote === 0) {
-      finalIndex = 1;
-    } else if (indexOfNote === scaleToUse.length - 1) {
-      finalIndex = scaleToUse.length - 2;
-    } else {
-      finalIndex = indexOfNote + upOrDown;
-    }
-    return scaleToUse[finalIndex];
-  }
 };

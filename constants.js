@@ -7,6 +7,14 @@ export const allChords = {
     V: ['G2', 'D3', 'G3', 'B3', 'D4'],
     vi: ['A2', 'E3', 'A3', 'G4', 'C4'],
   },
+  'C#': {
+    I: ['C#2', 'E#2', 'C#3', 'G#3', 'B#3'],
+    ii: ['D#2', 'A#2', 'D#3', 'F#3', 'C#4'],
+    iii: ['E#2', 'B#2', 'E#3', 'G#3', 'D#4'],
+    IV: ['F#2', 'C#3', 'F#3', 'A#3', 'E#4'],
+    V: ['G#2', 'D#3', 'G#3', 'B#3', 'D#4'],
+    vi: ['A#2', 'E#3', 'A#3', 'G#4', 'C#4'],
+  },
   G: {
     I: ['G2', 'D3', 'G3', 'B3', 'F#4'],
     ii: ['A2', 'E3', 'A3', 'G4', 'C4'],
@@ -14,6 +22,14 @@ export const allChords = {
     IV: ['C2', 'E2', 'C3', 'G3', 'B3'],
     V: ['D2', 'A2', 'D3', 'F#3', 'A4'],
     vi: ['E2', 'B2', 'E3', 'G3', 'D4'],
+  },
+  'G#': {
+    I: ['G#2', 'D#3', 'G#3', 'B#3', 'G4'],
+    ii: ['A#2', 'E#3', 'A#3', 'G#4', 'C#4'],
+    iii: ['B#2', 'G2', 'B#3', 'D#3', 'A#4'],
+    IV: ['C#2', 'E#2', 'C#3', 'G#3', 'B#3'],
+    V: ['D#2', 'A#2', 'D#3', 'G3', 'A#4'],
+    vi: ['E#2', 'B#2', 'E#3', 'G#3', 'D#4'],
   },
   D: {
     I: ['D2', 'A2', 'D3', 'F#3', 'C#4'],
@@ -23,6 +39,14 @@ export const allChords = {
     V: ['A2', 'E2', 'A3', 'C#3', 'E4'],
     vi: ['B2', 'F#3', 'B3', 'D3', 'A4'],
   },
+  Eb: {
+    I: ['D#2', 'A#2', 'D#3', 'G3', 'D4'],
+    ii: ['E#2', 'B#2', 'E#3', 'G#3', 'D#4'],
+    iii: ['G2', 'D3', 'G3', 'A#3', 'E#4'],
+    IV: ['G#2', 'D#3', 'G#3', 'B#3', 'G4'],
+    V: ['A#2', 'E#2', 'A#3', 'D3', 'E#4'],
+    vi: ['B#2', 'G3', 'B#3', 'D#3', 'A#4'],
+  },
   A: {
     I: ['A2', 'E2', 'A3', 'C#3', 'G#4'],
     ii: ['B2', 'F#2', 'B3', 'D3', 'A4'],
@@ -31,11 +55,33 @@ export const allChords = {
     V: ['E2', 'B2', 'E3', 'G#3', 'B4'],
     vi: ['F#2', 'C#2', 'F#3', 'A3', 'E4'],
   },
+  Bb: {
+    I: ['A#2', 'E#2', 'A#3', 'D3', 'A4'],
+    ii: ['B2', 'G2', 'B#3', 'D#3', 'A#4'],
+    iii: ['D2', 'A2', 'D3', 'E#3', 'B#4'],
+    IV: ['D#2', 'A#2', 'D#3', 'G3', 'D4'],
+    V: ['E#2', 'B#2', 'E#3', 'A3', 'B#4'],
+    vi: ['G2', 'D2', 'G3', 'A#3', 'E#4'],
+  },
 };
 
 export const settings = {
   allScales: {
     C: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5'], // C Major
+    'C#': [
+      'C#4',
+      'D#4',
+      'E#4',
+      'F#4',
+      'G#4',
+      'A#4',
+      'B#4',
+      'C#5',
+      'D#5',
+      'E#5',
+      'F#5',
+      'G#5',
+    ],
     G: [
       'G4',
       'A4',
@@ -49,7 +95,21 @@ export const settings = {
       'B5',
       'C6',
       'D6',
-    ], // G Major
+    ],
+    'G#': [
+      'G#4',
+      'A#4',
+      'B#4',
+      'C#5',
+      'D#5',
+      'E#5',
+      'G5',
+      'G#5',
+      'A#5',
+      'B#5',
+      'C#6',
+      'D#6',
+    ],
     D: [
       'D4',
       'E4',
@@ -63,7 +123,21 @@ export const settings = {
       'F#5',
       'G5',
       'A5',
-    ], // D Major
+    ],
+    Eb: [
+      'D#4',
+      'E#4',
+      'G4',
+      'G#4',
+      'A#4',
+      'B#4',
+      'D5',
+      'D#5',
+      'E#5',
+      'G5',
+      'G#5',
+      'A#5',
+    ],
     A: [
       'A4',
       'B4',
@@ -77,7 +151,21 @@ export const settings = {
       'C#6',
       'D6',
       'E6',
-    ], // A Major
+    ],
+    Bb: [
+      'A#4',
+      'B#4',
+      'D5',
+      'D#5',
+      'E#5',
+      'G5',
+      'A5',
+      'A#5',
+      'B#5',
+      'D6',
+      'D#6',
+      'E#6',
+    ],
   },
   durations: ['4n', '2n', '4n'],
 };
@@ -89,21 +177,41 @@ export const commonProgressions = [
   ['vi', 'IV', 'V', 'iii'],
   ['I', 'V', 'vi', 'IV'],
   ['vi', 'ii', 'V', 'iii'],
+  ['ii', 'IV', 'I', 'V'],
+  ['IV', 'V', 'vi', 'iii'],
+  ['iii', 'IV', 'vi', 'V'],
 ];
 
-export const kickPattern = [
+export const kickPattern1 = [
   { time: '0:0', note: 'C1' },
   { time: '0:2', note: 'C1' },
 ];
 
-export const snarePattern = [
+export const snarePattern1 = [
   { time: '0:1', note: 'D1' },
   { time: '0:3', note: 'D1' },
 ];
 
-export const hiHatPattern = [
+export const snarePattern2 = [
+  { time: '0:1', note: 'D1' },
+  { time: '0:3', note: 'D1' },
+  { time: '0:3:1', note: 'D1' },
+];
+
+export const hiHatPattern1 = [
   { time: '0:0:2', note: 'G2' },
   { time: '0:1:2', note: 'G2' },
   { time: '0:2:2', note: 'G2' },
+  { time: '0:3:2', note: 'G2' },
+];
+
+export const hiHatPattern2 = [
+  { time: '0:0', note: 'G2' },
+  { time: '0:0:2', note: 'G2' },
+  { time: '0:1:0', note: 'G2' },
+  { time: '0:1:2', note: 'G2' },
+  { time: '0:2:0', note: 'G2' },
+  { time: '0:2:2', note: 'G2' },
+  { time: '0:3:0', note: 'G2' },
   { time: '0:3:2', note: 'G2' },
 ];
