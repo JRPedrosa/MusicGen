@@ -1,10 +1,11 @@
 import { generateNewTrack } from './trackGenerator.js';
+import { isMobileDevice } from './utils.js';
 
 let isGenerating = false;
 
 const elements = {
   bench: document.querySelector('.bench'),
-  cpu: document.querySelector('.cpu'),
+  isMobile: document.querySelector('.isMobile'),
   buttons: {
     newTrack: document.getElementById('new-track'),
     play: document.getElementById('play'),
@@ -22,6 +23,11 @@ const configureToneJs = () => {
   context.updateInterval = 0.0005;
   const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
+
+  if (isMobileDevice()) {
+    elements.isMobile.textContent = 'isMobile';
+    // context.sampleRate = 22100;
+  }
 };
 
 // Transport Controls
@@ -47,22 +53,14 @@ const generateTrack = async () => {
     stopTransport();
     await new Promise((resolve) => setTimeout(resolve, 100));
     const { key, tempo } = generateNewTrack();
-    elements.key.textContent = `Key: ${key}`;
-    elements.tempo.textContent = `BPM: ${tempo}`;
+    /* elements.key.textContent = `Key: ${key}`;
+    elements.tempo.textContent = `BPM: ${tempo}`; */
   } catch (error) {
     console.error('Error generating track:', error);
     elements.bench.textContent = 'Error generating track';
   } finally {
     isGenerating = false;
   }
-};
-
-// CPU Monitoring
-const setupCPUMonitoring = () => {
-  setInterval(() => {
-    const usage = Tone.context.currentTime - Tone.context.currentTime;
-    elements.cpu.textContent = usage > 0.1 ? 'High CPU load!' : '';
-  }, 1000);
 };
 
 // Event Listeners
@@ -89,4 +87,3 @@ const setupEventListeners = () => {
 };
 
 setupEventListeners();
-setupCPUMonitoring();

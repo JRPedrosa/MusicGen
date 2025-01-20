@@ -99,13 +99,14 @@ export const generateNewTrack = () => {
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 10;
+  Tone.Destination.volume.value = 5;
 
   // Set reverb
-  // if (!isMobileDevice()) {
   const reverb = new Tone.Reverb(2.5).toDestination();
-  [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
-  // }
+  if (!isMobileDevice()) {
+    chordSynth.connect(reverb);
+  }
+  melodySynth.connect(reverb);
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
@@ -150,7 +151,7 @@ export const generateNewTrack = () => {
   sequences.snare = createDrumSequence(
     'snare',
     Math.random() > 0.5 ? snare : snare1,
-    Math.random() > 0.3 ? snarePattern1 : snarePattern2,
+    Math.random() > 0.4 ? snarePattern1 : snarePattern2,
     '8n',
   );
 
@@ -192,6 +193,17 @@ export const generateNewTrack = () => {
       sequence.probability = 1; // Ensure all notes play
     }
   });
+
+  document.getElementById('0').textContent = `key: ${key}`;
+  document.getElementById('1').textContent = `tempo: ${Math.floor(
+    Tone.Transport.bpm.value,
+  )}`;
+  document.getElementById('2').textContent = `melodySynth: ${
+    allMelodySynths.find((s) => s.sound === melodySynth)?.name
+  }`;
+  document.getElementById('3').textContent = `chords: ${chords.map(
+    (c) => c.name,
+  )}`;
 
   return {
     key,
