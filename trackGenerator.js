@@ -37,7 +37,7 @@ const TEMPO_RANGE = {
   MAX: 140,
 };
 const VOLUMES = {
-  chord: -22,
+  chord: -30,
   kick: -15,
   snare: {
     primary: -32,
@@ -99,7 +99,7 @@ export const generateNewTrack = () => {
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 5;
+  Tone.Destination.volume.value = 10;
 
   // Set reverb
   const reverb = new Tone.Reverb(2.5).toDestination();

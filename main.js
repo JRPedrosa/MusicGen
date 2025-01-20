@@ -39,6 +39,7 @@ const startTransport = () => {
 const stopTransport = () => {
   Tone.Transport.clear();
   Tone.Transport.stop();
+  Tone.Transport.cancel();
 };
 
 const disposeTransport = () => Tone.Transport.dispose();
@@ -67,7 +68,7 @@ const generateTrack = async () => {
 const setupEventListeners = () => {
   elements.buttons.newTrack.addEventListener('click', generateTrack);
   elements.buttons.play.addEventListener('click', startTransport);
-  elements.buttons.stop.addEventListener('click', stopTransport);
+  // elements.buttons.stop.addEventListener('click', stopTransport);
 
   window.addEventListener('beforeunload', disposeTransport);
 

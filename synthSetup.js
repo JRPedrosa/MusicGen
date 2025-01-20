@@ -89,10 +89,10 @@ export const chordSynth = new Tone.PolySynth(Tone.Synth, {
   maxPolyphony: 1,
   oscillator: { type: 'sine' },
   envelope: {
-    attack: 0.1,
-    decay: 0.3,
-    sustain: 0.3,
-    release: 0.5,
+    attack: 0.2,
+    decay: 0.1,
+    sustain: 0.9,
+    release: 0,
   },
 }).toDestination();
 
