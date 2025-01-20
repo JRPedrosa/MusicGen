@@ -5,7 +5,7 @@ const melody0 = new Tone.Synth({
     attack: 0.05,
     decay: 0.1,
     sustain: 0.3,
-    release: 1,
+    release: 0.4,
   },
 }).toDestination();
 
@@ -40,7 +40,7 @@ const melody2 = new Tone.DuoSynth({
       attack: 0.01,
       decay: 0.3,
       sustain: 0.4,
-      release: 0.6,
+      release: 0.4,
     },
   },
   voice1: {

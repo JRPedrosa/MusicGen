@@ -111,6 +111,19 @@ export const generateNewTrack = () => {
   const { chords, chordTime } = generateChords(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
+  const masterLimiter = new Tone.Limiter(-3).toDestination();
+  const masterCompressor = new Tone.Compressor({
+    threshold: -24,
+    ratio: 12,
+    attack: 0.003,
+    release: 0.25,
+  }).connect(masterLimiter);
+
+  const masterChannel = new Tone.Channel({
+    volume: -6,
+    pan: 0,
+  }).connect(masterCompressor);
+
   // Create melody and chord sequences
   sequences.melody = new Tone.Part((time, event) => {
     const velocity = Math.random() * 0.5 + 0.5;
@@ -164,6 +177,20 @@ export const generateNewTrack = () => {
     tempo: Math.floor(Tone.Transport.bpm.value),
     melodySynth: allMelodySynths.find((s) => s.sound === melodySynth)?.name,
     chords: chords.map((c) => c.name),
+  });
+
+  [melodySynth, chordSynth, kick, kick1, snare, snare1, hiHat, hiHat1].forEach(
+    (instrument) => {
+      instrument.disconnect();
+      instrument.connect(masterChannel);
+    },
+  );
+
+  Object.values(sequences).forEach((sequence) => {
+    if (sequence && isMobileDevice()) {
+      sequence.humanize = false; // Disable humanization for better performance
+      sequence.probability = 1; // Ensure all notes play
+    }
   });
 
   return {
