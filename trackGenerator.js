@@ -21,64 +21,97 @@ import { generateMelody } from './melodyGen.js';
 import { generateChords } from './chordGen.js';
 import { isMobileDevice } from './utils.js';
 
-let melodySynth;
-let melodySequence;
-let chordSequence;
-let drumSequence;
-let kickSequence;
-let snareSequence;
-let hiHatSequence;
-let key;
+const sequences = {
+  melody: null,
+  chord: null,
+  kick: null,
+  snare: null,
+  hiHat: null,
+};
 
-export const generateNewTrack = () => {
-  disposeAll();
-  if (melodySequence) melodySequence.dispose();
-  if (chordSequence) chordSequence.dispose();
-  if (drumSequence) drumSequence.dispose();
-  if (kickSequence) kickSequence.dispose();
-  if (snareSequence) snareSequence.dispose();
-  if (hiHatSequence) hiHatSequence.dispose();
+let melodySynth = null;
+let key = null;
 
-  //Set Tempo
-  Tone.Transport.bpm.value = Math.floor(Math.random() * 60) + 80;
+const TEMPO_RANGE = {
+  MIN: 80,
+  MAX: 140,
+};
+const VOLUMES = {
+  chord: -12,
+  kick: -5,
+  snare: {
+    primary: -22,
+    secondary: -20,
+  },
+  hiHat: -35,
+};
 
-  //Choose key
-  const randIndex = Math.floor(Math.random() * Object.keys(allChords).length);
-  key = Object.keys(allChords)[randIndex];
+const getRandomFromArray = (array) =>
+  array[Math.floor(Math.random() * array.length)];
 
-  //Choose a melody synth
-  const randIndex1 = Math.floor(Math.random() * allMelodySynths.length);
-  melodySynth = allMelodySynths[randIndex1].sound;
+const getRandomKey = () => {
+  const keys = Object.keys(allChords);
+  return getRandomFromArray(keys);
+};
 
-  // Set Volumes
-  chordSynth.volume.value = -12;
-  kick.volume.value = -5;
-  kick1.volume.value = -5;
-
-  snare.volume.value = -22;
-  snare1.volume.value = -20;
-
-  hiHat.volume.value = -35;
-  hiHat1.volume.value = -35;
-
-  // Add effects
-  if (!isMobileDevice()) {
-    const reverb = new Tone.Reverb(2.5).toDestination();
-    melodySynth.connect(reverb);
-    chordSynth.connect(reverb);
+const createDrumSequence = (type, instrument, pattern, noteLength) => {
+  if (type === 'snare') {
+    return new Tone.Part((time) => {
+      instrument.triggerAttackRelease(noteLength, time);
+    }, pattern).start(0);
   }
 
-  //Generate chords
-  const { chords, chordTime } = generateChords(key);
+  return new Tone.Part((time, event) => {
+    instrument.triggerAttackRelease(event?.note, noteLength, time);
+  }, pattern).start(0);
+};
 
-  //Generate Melody
+const initializeSequence = (sequence, loopEnd) => {
+  if (sequence) {
+    sequence.loop = true;
+    sequence.loopEnd = loopEnd;
+  }
+};
+
+const disposeSequences = () => {
+  Object.values(sequences).forEach((sequence) => {
+    if (sequence) {
+      sequence.dispose();
+    }
+  });
+  Object.keys(sequences).forEach((key) => (sequences[key] = null));
+  melodySynth = null;
+};
+
+export const generateNewTrack = () => {
+  disposeSequences();
+
+  // Initialize track parameters
+  Tone.Transport.bpm.value =
+    Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
+    TEMPO_RANGE.MIN;
+  key = getRandomKey();
+  melodySynth = getRandomFromArray(allMelodySynths).sound;
+
+  // Set volumes
+  chordSynth.volume.value = VOLUMES.chord;
+  [kick, kick1].forEach((k) => (k.volume.value = VOLUMES.kick));
+  snare.volume.value = VOLUMES.snare.primary;
+  snare1.volume.value = VOLUMES.snare.secondary;
+  [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
+
+  // Set reverb
+  if (!isMobileDevice()) {
+    const reverb = new Tone.Reverb(2.5).toDestination();
+    [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
+  }
+
+  // Generate musical content
+  const { chords, chordTime } = generateChords(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
-  console.log(chords.map((c) => c.name));
-  console.log('melody', melody);
-
-  // Create sequences
-  melodySequence = new Tone.Part((time, event) => {
+  // Create melody and chord sequences
+  sequences.melody = new Tone.Part((time, event) => {
     const velocity = Math.random() * 0.5 + 0.5;
     melodySynth.triggerAttackRelease(
       event.note,
@@ -88,68 +121,52 @@ export const generateNewTrack = () => {
     );
   }, melody).start(0);
 
-  chordSequence = new Tone.Part((time, event) => {
+  sequences.chord = new Tone.Part((time, event) => {
     chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
   }, chords).start(0);
 
-  // Create separate sequences for each drum
-  const kickToUse = Math.random() > 0.5 ? kick : kick1;
-  kickSequence = new Tone.Part((time, event) => {
-    kickToUse.triggerAttackRelease(event.note, '8n', time);
-  }, kickPattern1).start(0);
+  // Create drum sequences
+  sequences.kick = createDrumSequence(
+    'kick',
+    Math.random() > 0.5 ? kick : kick1,
+    kickPattern1,
+    '8n',
+  );
 
-  const snareToUse = Math.random() > 0.5 ? snare : snare1;
-  snareSequence = new Tone.Part(
-    (time) => {
-      snareToUse.triggerAttackRelease('8n', time);
-    },
+  sequences.snare = createDrumSequence(
+    'snare',
+    Math.random() > 0.5 ? snare : snare1,
     Math.random() > 0.3 ? snarePattern1 : snarePattern2,
-  ).start(0);
+    '8n',
+  );
 
-  const hiHatToUse = Math.random() > 0.5 ? hiHat : hiHat1;
-  hiHatSequence = new Tone.Part(
-    (time, event) => {
-      hiHatToUse.triggerAttackRelease(event.note, '32n', time);
-    },
+  sequences.hiHat = createDrumSequence(
+    'hihat',
+    Math.random() > 0.5 ? hiHat : hiHat1,
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
-  ).start(0);
+    '32n',
+  );
 
-  // Set loops
-  melodySequence.loop = true;
-  chordSequence.loop = true;
-  kickSequence.loop = true;
-  snareSequence.loop = true;
-  hiHatSequence.loop = true;
+  // Calculate and set loop lengths
+  const adjustedMelodyTime =
+    melodyTime + (chordTime - (melodyTime % chordTime));
 
-  const timeToAdd = chordTime - (melodyTime % chordTime);
-  const adjustedMelodyTime = melodyTime + timeToAdd;
+  // Initialize all sequences
+  initializeSequence(sequences.melody, adjustedMelodyTime);
+  initializeSequence(sequences.chord, chordTime);
+  Object.entries(sequences)
+    .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
+    .forEach(([, sequence]) => initializeSequence(sequence, '1m'));
 
-  // Set loop lengths in seconds
-  melodySequence.loopEnd = adjustedMelodyTime; // Loop length matches our generated melody
-  chordSequence.loopEnd = chordTime; // Loop length matches our chord progression
-  kickSequence.loopEnd = '1m';
-  snareSequence.loopEnd = '1m';
-  hiHatSequence.loopEnd = '1m';
+  console.log({
+    key,
+    tempo: Math.floor(Tone.Transport.bpm.value),
+    melodySynth: allMelodySynths.find((s) => s.sound === melodySynth)?.name,
+    chords: chords.map((c) => c.name),
+  });
 
-  console.log('New track generated:', settings);
-  console.log('melodySynth', allMelodySynths[randIndex1].name);
-  console.log('Tempo', Tone.Transport.bpm.value);
-  console.log('## key', key);
-
-  return { key, tempo: Math.floor(Tone.Transport.bpm.value) };
+  return {
+    key,
+    tempo: Math.floor(Tone.Transport.bpm.value),
+  };
 };
-
-function disposeAll() {
-  if (melodySequence) melodySequence.dispose();
-  if (chordSequence) chordSequence.dispose();
-  if (drumSequence) drumSequence.dispose();
-  if (kickSequence) kickSequence.dispose();
-  if (snareSequence) snareSequence.dispose();
-  if (hiHatSequence) hiHatSequence.dispose();
-
-  chordSequence = null;
-  kickSequence = null;
-  snareSequence = null;
-  hiHatSequence = null;
-  melodySynth = null;
-}
