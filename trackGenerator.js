@@ -3,6 +3,7 @@ import {
   kickPattern,
   snarePattern,
   hiHatPattern,
+  allChords,
 } from './constants.js';
 import {
   allMelodySynths,
@@ -22,6 +23,7 @@ let drumSequence;
 let kickSequence;
 let snareSequence;
 let hiHatSequence;
+let key;
 
 export const generateNewTrack = () => {
   disposeAll();
@@ -33,11 +35,15 @@ export const generateNewTrack = () => {
   if (hiHatSequence) hiHatSequence.dispose();
 
   //Set Tempo
-  Tone.Transport.bpm.value = Math.floor(Math.random() * 70) + 70; // Tempo between 70/140 bpm
+  Tone.Transport.bpm.value = Math.floor(Math.random() * 60) + 80;
+
+  //Choose key
+  const randIndex = Math.floor(Math.random() * Object.keys(allChords).length);
+  key = Object.keys(allChords)[randIndex];
 
   //Choose a melody synth
-  const randIndex = Math.floor(Math.random() * allMelodySynths.length);
-  melodySynth = allMelodySynths[randIndex].sound;
+  const randIndex1 = Math.floor(Math.random() * allMelodySynths.length);
+  melodySynth = allMelodySynths[randIndex1].sound;
 
   // Set Volumes
   chordSynth.volume.value = -12;
@@ -58,10 +64,10 @@ export const generateNewTrack = () => {
   }
 
   //Generate chords
-  const { chords, chordTime } = generateChords();
+  const { chords, chordTime } = generateChords(key);
 
   //Generate Melody
-  const { melody, melodyTime } = generateMelody(chords, chordTime);
+  const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
   console.log(chords.map((c) => c.name));
   console.log('melody', melody);
@@ -112,8 +118,9 @@ export const generateNewTrack = () => {
   hiHatSequence.loopEnd = '1m';
 
   console.log('New track generated:', settings);
-  console.log('melodySynth', allMelodySynths[randIndex].name);
+  console.log('melodySynth', allMelodySynths[randIndex1].name);
   console.log('Tempo', Tone.Transport.bpm.value);
+  console.log('## key', key);
 };
 
 function disposeAll() {

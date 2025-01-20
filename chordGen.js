@@ -1,6 +1,6 @@
-import { commonProgressions, chordsInC } from './constants.js';
+import { commonProgressions, allChords } from './constants.js';
 
-export const generateChords = () => {
+export const generateChords = (key) => {
   const selectedProgression = [
     ...commonProgressions[
       Math.floor(Math.random() * commonProgressions.length)
@@ -15,7 +15,7 @@ export const generateChords = () => {
 
     chords.push({
       time: chordTime,
-      notes: chordsInC.C[chordSymbol],
+      notes: allChords[key][chordSymbol],
       duration: '1n',
       name: chordSymbol,
     });

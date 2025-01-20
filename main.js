@@ -40,16 +40,7 @@ window.addEventListener('beforeunload', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const isMobileTextDiv = document.querySelector('.ismobile');
-  const regexDiv = document.querySelector('.regex');
-  const functionDiv = document.querySelector('.function');
-
-  const isMobileRegEx = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const isMobileFunction = isMobileDevice();
-
-  regexDiv.textContent = `regex: ${isMobileRegEx}`;
-  functionDiv.textContent = `function: ${isMobileFunction}`;
-
-  if (isMobileRegEx || isMobileFunction) {
+  if (isMobileDevice()) {
     isMobileTextDiv.textContent = 'Using a mobile device.';
   } else {
     isMobileTextDiv.textContent = 'Using a desktop device.';
