@@ -23,7 +23,10 @@ const configureToneJs = () => {
 };
 
 // Transport Controls
-const startTransport = () => Tone.Transport.start('+0.2');
+const startTransport = () => {
+  console.log('## Play');
+  Tone.Transport.start('+0.2');
+};
 
 const stopTransport = () => {
   Tone.Transport.clear();
