@@ -92,23 +92,31 @@ export const generateNewTrack = () => {
     TEMPO_RANGE.MIN;
   key = getRandomKey();
   melodySynth = getRandomFromArray(allMelodySynths).sound;
+  /* melodySynth = allMelodySynths[0].sound; */
 
-  /* const masterCompressor = new Tone.Compressor({
-    threshold: -15,
-    ratio: 4,
-    attack: 0.005,
-    release: 0.1,
-  }).toDestination();
+  const masterGain = new Tone.Gain(0.7).toDestination();
 
-  const masterLimiter = new Tone.Limiter(-3).connect(masterCompressor);
+  // Create individual gain nodes for each instrument type
+  const drumsGain = new Tone.Gain(0.4).connect(masterGain);
+  const melodyGain = new Tone.Gain(0.3).connect(masterGain);
+  const chordsGain = new Tone.Gain(0.3).connect(masterGain);
 
-  // Connect your synths to the master chain instead of toDestination()
-  [melodySynth, chordSynth, kick, kick1, snare, snare1, hiHat, hiHat1].forEach(
-    (synth) => {
-      synth.disconnect();
-      synth.connect(masterLimiter);
-    },
-  ); */
+  // Connect instruments to their respective gain nodes
+  [kick, kick1, snare, snare1, hiHat, hiHat1].forEach((drum) => {
+    drum.disconnect();
+    drum.connect(drumsGain);
+  });
+
+  melodySynth.disconnect();
+  melodySynth.connect(melodyGain);
+
+  chordSynth.disconnect();
+  chordSynth.connect(chordsGain);
+
+  masterGain.gain.rampTo(0.7, 0.1);
+  drumsGain.gain.rampTo(0.7, 0.1);
+  melodyGain.gain.rampTo(0.7, 0.1);
+  chordsGain.gain.rampTo(0.7, 0.1);
 
   // Set volumes
   chordSynth.volume.value = VOLUMES.chord;
@@ -116,7 +124,7 @@ export const generateNewTrack = () => {
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 10;
+  Tone.Destination.volume.value = 15;
 
   // Set reverb
   // if (!isMobileDevice()) {
@@ -139,9 +147,9 @@ export const generateNewTrack = () => {
     );
   }, melody).start(0);
 
-  /* sequences.chord = new Tone.Part((time, event) => {
+  sequences.chord = new Tone.Part((time, event) => {
     chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
-  }, chords).start(0); */
+  }, chords).start(0);
 
   // Create drum sequences
   sequences.kick = createDrumSequence(
@@ -171,7 +179,7 @@ export const generateNewTrack = () => {
 
   // Initialize all sequences
   initializeSequence(sequences.melody, adjustedMelodyTime);
-  // initializeSequence(sequences.chord, chordTime);
+  initializeSequence(sequences.chord, chordTime);
   Object.entries(sequences)
     .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
     .forEach(([, sequence]) => initializeSequence(sequence, '1m'));

@@ -19,7 +19,7 @@ const configureToneJs = () => {
   const context = Tone.getContext();
   context._latencyHint = 'playback';
   context._lookAhead = 0.5;
-  context.updateInterval = 0.1;
+  context.updateInterval = 0.0005;
 };
 
 // Transport Controls
