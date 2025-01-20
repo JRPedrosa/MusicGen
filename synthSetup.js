@@ -20,13 +20,6 @@ const melody1 = new Tone.FMSynth({
     sustain: 0.2,
     release: 0.2,
   },
-  modulation: { type: 'square' },
-  modulationEnvelope: {
-    attack: 0.5,
-    decay: 0,
-    sustain: 1,
-    release: 0.2,
-  },
 }).toDestination();
 
 const melody2 = new Tone.DuoSynth({

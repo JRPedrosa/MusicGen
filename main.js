@@ -18,9 +18,9 @@ const elements = {
 // Tone.js Configuration
 const configureToneJs = () => {
   const context = Tone.getContext();
-  context._latencyHint = 'playback';
+  // context._latencyHint = 'playback';
   context._lookAhead = 0.5;
-  context.updateInterval = 0.01;
+  // context.updateInterval = 0.01;
   const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 
