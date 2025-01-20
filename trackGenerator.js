@@ -99,7 +99,7 @@ export const generateNewTrack = () => {
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 10;
+  Tone.Destination.volume.value = 0;
 
   // Set reverb
   const reverb = new Tone.Reverb(2.5).toDestination();
@@ -111,19 +111,6 @@ export const generateNewTrack = () => {
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
-
-  const masterLimiter = new Tone.Limiter(-3).toDestination();
-  const masterCompressor = new Tone.Compressor({
-    threshold: -24,
-    ratio: 12,
-    attack: 0.003,
-    release: 0.25,
-  }).connect(masterLimiter);
-
-  const masterChannel = new Tone.Channel({
-    volume: -6,
-    pan: 0,
-  }).connect(masterCompressor);
 
   // Create melody and chord sequences
   sequences.melody = new Tone.Part((time, event) => {
@@ -180,17 +167,10 @@ export const generateNewTrack = () => {
     chords: chords.map((c) => c.name),
   });
 
-  [melodySynth, chordSynth, kick, kick1, snare, snare1, hiHat, hiHat1].forEach(
-    (instrument) => {
-      instrument.disconnect();
-      instrument.connect(masterChannel);
-    },
-  );
-
   Object.values(sequences).forEach((sequence) => {
     if (sequence && isMobileDevice()) {
       sequence.humanize = false; // Disable humanization for better performance
-      sequence.probability = 1; // Ensure all notes play
+      // sequence.probability = 1; // Ensure all notes play
     }
   });
 

@@ -86,13 +86,13 @@ export const allMelodySynths = [
 ];
 
 export const chordSynth = new Tone.PolySynth(Tone.Synth, {
-  maxPolyphony: 1,
+  maxPolyphony: 2, // Increase polyphony for smoother transitions
   oscillator: { type: 'sine' },
   envelope: {
-    attack: 0.2,
-    decay: 0.1,
-    sustain: 0.9,
-    release: 0,
+    attack: 0.2, // Slight attack for smooth note onset
+    decay: 0, // No decay, note holds as long as pressed
+    sustain: 0.9, // Sustain stays near full volume
+    release: 0.1, // Small release to avoid sudden cuts
   },
 }).toDestination();
 
