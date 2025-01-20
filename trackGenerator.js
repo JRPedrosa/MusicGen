@@ -94,7 +94,7 @@ export const generateNewTrack = () => {
   melodySynth = getRandomFromArray(allMelodySynths).sound;
   /* melodySynth = allMelodySynths[0].sound; */
 
-  const masterGain = new Tone.Gain(0.7).toDestination();
+  /* const masterGain = new Tone.Gain(0.7).toDestination();
 
   // Create individual gain nodes for each instrument type
   const drumsGain = new Tone.Gain(0.4).connect(masterGain);
@@ -116,7 +116,7 @@ export const generateNewTrack = () => {
   masterGain.gain.rampTo(0.7, 0.1);
   drumsGain.gain.rampTo(0.7, 0.1);
   melodyGain.gain.rampTo(0.7, 0.1);
-  chordsGain.gain.rampTo(0.7, 0.1);
+  chordsGain.gain.rampTo(0.7, 0.1); */
 
   // Set volumes
   chordSynth.volume.value = VOLUMES.chord;
@@ -124,13 +124,13 @@ export const generateNewTrack = () => {
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 15;
+  Tone.Destination.volume.value = 10;
 
   // Set reverb
-  // if (!isMobileDevice()) {
-  const reverb = new Tone.Reverb(2.5).toDestination();
-  [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
-  // }
+  if (!isMobileDevice()) {
+    const reverb = new Tone.Reverb(2.5).toDestination();
+    [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
+  }
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
