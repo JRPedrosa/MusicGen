@@ -10,12 +10,12 @@ import {
 import {
   allMelodySynths,
   chordSynth,
-  kick,
+  /* kick,
   kick1,
   snare,
   snare1,
   hiHat,
-  hiHat1,
+  hiHat1, */
 } from './synthSetup.js';
 import { generateMelody } from './melodyGen.js';
 import { generateChords } from './chordGen.js';
@@ -98,10 +98,10 @@ export const generateNewTrack = () => {
 
   // Set volumes
   chordSynth.volume.value = VOLUMES.chord;
-  [kick, kick1].forEach((k) => (k.volume.value = VOLUMES.kick));
+  /* [kick, kick1].forEach((k) => (k.volume.value = VOLUMES.kick));
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
-  [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
+  [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat)); */
   Tone.Destination.volume.value = 0;
 
   // Set reverb
@@ -131,7 +131,7 @@ export const generateNewTrack = () => {
   }, chords).start(0);
 
   // Create drum sequences
-  sequences.kick = createDrumSequence(
+  /* sequences.kick = createDrumSequence(
     'kick',
     Math.random() > 0.5 ? kick : kick1,
     kickPattern1,
@@ -150,7 +150,7 @@ export const generateNewTrack = () => {
     Math.random() > 0.5 ? hiHat : hiHat1,
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
     '32n',
-  );
+  ); */
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
@@ -159,9 +159,9 @@ export const generateNewTrack = () => {
   // Initialize all sequences
   initializeSequence(sequences.melody, adjustedMelodyTime);
   initializeSequence(sequences.chord, chordTime);
-  Object.entries(sequences)
+  /* Object.entries(sequences)
     .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
-    .forEach(([, sequence]) => initializeSequence(sequence, '1m'));
+    .forEach(([, sequence]) => initializeSequence(sequence, '1m')); */
 
   console.log({
     key,
