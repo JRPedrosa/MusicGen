@@ -73,10 +73,10 @@ const melody3 = new Tone.MonoSynth({
   },
 }).toDestination();
 
-melody0.volume.value = -20;
-melody1.volume.value = -5;
-melody2.volume.value = -25;
-melody3.volume.value = -20;
+melody0.volume.value = -30;
+melody1.volume.value = -15;
+melody2.volume.value = -35;
+melody3.volume.value = -30;
 
 export const allMelodySynths = [
   { sound: melody0, name: 'melody0' },
@@ -102,7 +102,7 @@ export const kick = new Tone.MembraneSynth({
   octaves: 5,
   oscillator: { type: 'sine' },
   envelope: {
-    attack: 0.001,
+    attack: 0.01,
     decay: 0.4,
     sustain: 0.01,
     release: 0.4,
@@ -114,7 +114,7 @@ export const kick1 = new Tone.MembraneSynth({
   octaves: 5,
   oscillator: { type: 'triangle' },
   envelope: {
-    attack: 0.001,
+    attack: 0.01,
     decay: 0.3,
     sustain: 0.02,
     release: 0.2,
@@ -128,7 +128,7 @@ export const snare = new Tone.NoiseSynth({
     volume: 5,
   },
   envelope: {
-    attack: 0.001,
+    attack: 0.005,
     decay: 0.2,
     sustain: 0,
     release: 0.2,

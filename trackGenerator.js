@@ -37,13 +37,13 @@ const TEMPO_RANGE = {
   MAX: 140,
 };
 const VOLUMES = {
-  chord: -12,
-  kick: -5,
+  chord: -22,
+  kick: -15,
   snare: {
-    primary: -22,
-    secondary: -20,
+    primary: -32,
+    secondary: -30,
   },
-  hiHat: -35,
+  hiHat: -45,
 };
 
 const getRandomFromArray = (array) =>
@@ -93,6 +93,23 @@ export const generateNewTrack = () => {
   key = getRandomKey();
   melodySynth = getRandomFromArray(allMelodySynths).sound;
 
+  /* const masterCompressor = new Tone.Compressor({
+    threshold: -15,
+    ratio: 4,
+    attack: 0.005,
+    release: 0.1,
+  }).toDestination();
+
+  const masterLimiter = new Tone.Limiter(-3).connect(masterCompressor);
+
+  // Connect your synths to the master chain instead of toDestination()
+  [melodySynth, chordSynth, kick, kick1, snare, snare1, hiHat, hiHat1].forEach(
+    (synth) => {
+      synth.disconnect();
+      synth.connect(masterLimiter);
+    },
+  ); */
+
   // Set volumes
   chordSynth.volume.value = VOLUMES.chord;
   [kick, kick1].forEach((k) => (k.volume.value = VOLUMES.kick));
@@ -101,10 +118,10 @@ export const generateNewTrack = () => {
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
 
   // Set reverb
-  if (!isMobileDevice()) {
-    const reverb = new Tone.Reverb(2.5).toDestination();
-    [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
-  }
+  // if (!isMobileDevice()) {
+  const reverb = new Tone.Reverb(2.5).toDestination();
+  [melodySynth, chordSynth].forEach((synth) => synth.connect(reverb));
+  // }
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
