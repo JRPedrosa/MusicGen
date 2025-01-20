@@ -90,7 +90,7 @@ export const chordSynth = new Tone.PolySynth(Tone.Synth, {
 }).toDestination();
 
 // DRUMS
-/* export const kick = new Tone.MembraneSynth({
+export const kick = new Tone.MembraneSynth({
   pitchDecay: 0.05,
   octaves: 5,
   oscillator: { type: 'sine' },
@@ -169,4 +169,3 @@ export const hiHat1 = new Tone.MetalSynth({
   resonance: 3000,
   octaves: 1,
 }).toDestination();
- */
