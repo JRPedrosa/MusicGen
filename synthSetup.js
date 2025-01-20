@@ -5,7 +5,7 @@ const melody0 = new Tone.Synth({
     attack: 0.05,
     decay: 0.1,
     sustain: 0.3,
-    release: 0.4,
+    release: 0.2,
   },
 }).toDestination();
 
@@ -18,14 +18,14 @@ const melody1 = new Tone.FMSynth({
     attack: 0.01,
     decay: 0.2,
     sustain: 0.2,
-    release: 0.4,
+    release: 0.2,
   },
   modulation: { type: 'square' },
   modulationEnvelope: {
     attack: 0.5,
     decay: 0,
     sustain: 1,
-    release: 0.5,
+    release: 0.2,
   },
 }).toDestination();
 
@@ -40,7 +40,7 @@ const melody2 = new Tone.DuoSynth({
       attack: 0.01,
       decay: 0.3,
       sustain: 0.4,
-      release: 0.4,
+      release: 0.2,
     },
   },
   voice1: {
@@ -49,7 +49,7 @@ const melody2 = new Tone.DuoSynth({
       attack: 0.05,
       decay: 0.2,
       sustain: 0.3,
-      release: 0.4,
+      release: 0.2,
     },
   },
 }).toDestination();
@@ -61,13 +61,13 @@ const melody3 = new Tone.MonoSynth({
     attack: 0.05,
     decay: 0.3,
     sustain: 0.4,
-    release: 0.8,
+    release: 0.2,
   },
   filterEnvelope: {
     attack: 0.1,
     decay: 0.2,
     sustain: 0.3,
-    release: 0.4,
+    release: 0.2,
     baseFrequency: 200,
     octaves: 3,
   },
@@ -91,8 +91,8 @@ export const chordSynth = new Tone.PolySynth(Tone.Synth, {
   envelope: {
     attack: 0.1,
     decay: 0.3,
-    sustain: 0.4,
-    release: 2,
+    sustain: 0.3,
+    release: 0.5,
   },
 }).toDestination();
 
@@ -104,8 +104,8 @@ export const kick = new Tone.MembraneSynth({
   envelope: {
     attack: 0.01,
     decay: 0.4,
-    sustain: 0.01,
-    release: 0.4,
+    sustain: 0,
+    release: 0,
   },
 }).toDestination();
 
@@ -116,8 +116,8 @@ export const kick1 = new Tone.MembraneSynth({
   envelope: {
     attack: 0.01,
     decay: 0.3,
-    sustain: 0.02,
-    release: 0.2,
+    sustain: 0,
+    release: 0,
   },
 }).toDestination();
 
@@ -131,7 +131,7 @@ export const snare = new Tone.NoiseSynth({
     attack: 0.005,
     decay: 0.2,
     sustain: 0,
-    release: 0.2,
+    release: 0,
   },
 }).toDestination();
 
@@ -145,7 +145,7 @@ export const snare1 = new Tone.NoiseSynth({
     attack: 0.01,
     decay: 0.2,
     sustain: 0,
-    release: 0.4,
+    release: 0,
   },
 }).toDestination();
 
@@ -155,7 +155,7 @@ export const hiHat = new Tone.MetalSynth({
     attack: 0.001,
     decay: 0.1,
     sustain: 0,
-    release: 0.05,
+    release: 0,
   },
   harmonicity: 5.1,
   modulationIndex: 32,
@@ -169,7 +169,7 @@ export const hiHat1 = new Tone.MetalSynth({
     attack: 0.001,
     decay: 0.1,
     sustain: 0,
-    release: 0.05,
+    release: 0,
   },
   harmonicity: 5.1,
   modulationIndex: 32,
