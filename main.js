@@ -31,31 +31,10 @@ const configureToneJs = () => {
   const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 
-  if ('deviceMemory' in navigator) {
-    const memory = navigator.deviceMemory;
-    console.log(`This device has approximately ${memory}GB of RAM.`);
-    elements.debug.textContent = `${memory}GB of RAM.`;
-  } else {
-    elements.debug.textContent = `?GB of RAM.`;
-  }
-
   if (isMobileDevice()) {
     context._lookAhead = 1;
     context.updateInterval = 0.2;
   }
-
-  const estimatePerformance = () => {
-    const start = performance.now();
-    // Example: Perform a large computation
-    for (let i = 0; i < 100000000; i++) {
-      Math.sqrt(i);
-    }
-    const end = performance.now();
-    elements.debug2.textContent = `Performance Test Time: ${end - start}ms`;
-    console.log(`Performance Test Time: ${Math.floor(end - start)}ms`);
-  };
-
-  estimatePerformance();
 
   if (isMobileDevice()) {
     elements.isMobile.textContent = 'isMobile';
@@ -114,15 +93,22 @@ const sequences1 = {
 };
 let activePlayer = null;
 const startOffline = () => {
-  if (activePlayer) {
+  /* if (activePlayer) {
     activePlayer.stop(); // Stop the active player
     activePlayer.dispose(); // Dispose of the player to free up resources
     activePlayer = null;
     elements.buttons.offline.innerText = `offline gen (BETA)`;
 
     return;
+  } */
+  if (isGenerating) {
+    return;
   }
-  elements.loading.textContent = `Generating... Please wait`;
+  isGenerating = true;
+  elements.loading.textContent = ``;
+  elements.buttons.offline.style.backgroundColor = 'grey';
+  elements.loading.classList.add('loading-animation');
+
   Tone.Offline(async ({ transport }) => {
     generateNewTrack(transport);
     transport.start(0.2);
@@ -161,8 +147,12 @@ const playBuffer = (buffer) => {
 
   // Step 5: Append the audio element to the body
 
-  const controlsDiv = document.querySelector('.controls');
+  const controlsDiv = document.querySelector('.display');
   controlsDiv.appendChild(audioElement);
+  isGenerating = false;
+  elements.buttons.offline.style.backgroundColor = '#6200ea';
+  elements.loading.textContent = `Ready!`;
+  elements.loading.classList.remove('loading-animation');
 };
 
 function bufferToWav(buffer, context) {
@@ -251,8 +241,8 @@ const cleanupAudio = async () => {
 
 // Event Listeners
 const setupEventListeners = () => {
-  elements.buttons.newTrack.addEventListener('click', newTrack);
-  elements.buttons.play.addEventListener('click', startTransport);
+  /* elements.buttons.newTrack.addEventListener('click', newTrack);
+  elements.buttons.play.addEventListener('click', startTransport); */
   elements.buttons.offline.addEventListener('click', startOffline);
 
   window.addEventListener('beforeunload', async () => {
@@ -271,26 +261,9 @@ const setupEventListeners = () => {
       console.log('Tone.js is loaded');
       await Tone.start(); // Initialize Tone.js
       configureToneJs();
-      generateTrack();
+      // generateTrack();
     };
   });
 };
 
 setupEventListeners();
-
-const generateNewTrackOffline = async () => {
-  // This function should return the chords and melody events, like the real generateNewTrack
-  // but modified for offline rendering. For example:
-  /* const chords = [
-    { notes: ['C4', 'E4', 'G4'], duration: '1n', time: 0, velocity: 0.8 },
-    { notes: ['F4', 'A4', 'C5'], duration: '1n', time: 1, velocity: 0.8 },
-  ]; */
-
-  const melody = [
-    { note: 'C4', duration: '8n', time: 0, velocity: 0.7 },
-    { note: 'D4', duration: '8n', time: 0.5, velocity: 0.7 },
-  ];
-
-  // Simulate other track details and return the events
-  return { chords: null, melody };
-};

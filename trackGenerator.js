@@ -204,15 +204,15 @@ export const generateNewTrack = (trans = null) => {
   document.getElementById('1').textContent = `tempo: ${Math.floor(
     transport.bpm.value,
   )}`;
-  document.getElementById('2').textContent = `melodySynth: ${
+  /*   document.getElementById('2').textContent = `melodySynth: ${
     allMelodySynths.find((s) => s.sound === melodySynth)?.name
-  }`;
+  }`; */
   document.getElementById('3').textContent = `chords: ${chords.map(
     (c) => c.name,
   )}`;
-  document.getElementById('4').textContent = `chordSynth: ${
+  /*   document.getElementById('4').textContent = `chordSynth: ${
     allChordSynths.find((s) => s.sound === chordSynth)?.name
-  }`;
+  }`; */
 
   return {
     key,
