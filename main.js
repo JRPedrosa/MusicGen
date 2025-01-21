@@ -23,7 +23,7 @@ const configureToneJs = () => {
   context._latencyHint = 'playback';
   context._lookAhead = 0.5;
   context.updateInterval = 0.05;
-  const bufferSize = 512; // or 2048 for very slow devices
+  const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 
   if ('deviceMemory' in navigator) {
@@ -35,7 +35,7 @@ const configureToneJs = () => {
   }
 
   if (isMobileDevice()) {
-    context._lookAhead = 1.5;
+    context._lookAhead = 1;
     context.updateInterval = 0.2;
   }
 

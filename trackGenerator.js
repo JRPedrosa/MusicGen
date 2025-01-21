@@ -10,7 +10,6 @@ import {
 import {
   allMelodySynths,
   allChordSynths,
-  chordSynthMobile,
   kick,
   kick1,
   snare,
@@ -122,11 +121,6 @@ export const generateNewTrack = () => {
   }, melody).start(0);
 
   chordSynth = getRandomFromArray(allChordSynths).sound;
-  if (isMobileDevice()) {
-    chordSynthMobile.volume.value = -30;
-    chordSynth = chordSynthMobile;
-  }
-
   sequences.chord = new Tone.Part((time, event) => {
     chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
   }, chords).start(0);

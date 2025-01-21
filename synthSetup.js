@@ -89,17 +89,6 @@ export const chordSynth1 = new Tone.PolySynth(Tone.Synth, {
   },
 }).toDestination();
 
-export const chordSynthMobile = new Tone.PolySynth(Tone.Synth, {
-  // maxPolyphony: 1,
-  oscillator: { type: 'triangle' },
-  envelope: {
-    attack: 0.2,
-    decay: 0.2,
-    sustain: 0.9,
-    release: 0.1,
-  },
-}).toDestination();
-
 export const chordSynth2 = new Tone.PolySynth(Tone.Synth, {
   maxPolyphony: 5, // Match the max number of notes in your chords
   voice: Tone.Synth,
