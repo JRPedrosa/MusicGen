@@ -124,45 +124,6 @@ const startOffline = () => {
   }
   elements.loading.textContent = `Generating... Please wait`;
   Tone.Offline(async ({ transport }) => {
-    /* const melodySynth = new Tone.Synth().toDestination();
-    const chordSynth = new Tone.Synth().toDestination();
-    const reverb = new Tone.Reverb(2.5).toDestination();
-    chordSynth.connect(reverb); */
-
-    /* const { chords, melody } = await generateNewTrackOffline();
-
-    melody.forEach((event, index) => {
-      melodySynth.triggerAttackRelease(
-        event.note,
-        event.duration,
-        event.time,
-        event.velocity,
-      );
-    }); */
-    /* const key = getRandomKey();
-
-    const { chords, chordTime } = generateChords(key);
-    const { melody, melodyTime } = generateMelody(chords, chordTime, key);
-
-    // Create melody and chord sequences
-    sequences1.melody = new Tone.Part((time, event) => {
-      const velocity = Math.random() * 0.5 + 0.5;
-      melodySynth.triggerAttackRelease(
-        event.note,
-        event.duration,
-        time,
-        velocity,
-      );
-    }, melody).start(0); */
-
-    /* chords.forEach((event, index) => {
-      chordSynth.triggerAttackRelease(
-        event.notes,
-        event.duration,
-        event.time,
-        event.velocity,
-      );
-    }); */
     generateNewTrack(transport);
     transport.start(0.2);
   }, 30)
@@ -176,12 +137,100 @@ const startOffline = () => {
     });
 };
 
-const playBuffer = (buffer) => {
+/* const playBuffer = (buffer) => {
   activePlayer = new Tone.Player(buffer).toDestination();
   activePlayer.start();
   elements.loading.textContent = `Now playing!`;
   elements.buttons.offline.innerText = `Stop`;
+}; */
+
+const playBuffer = (buffer) => {
+  // Step 1: Convert Tone.Buffer to a Blob (WAV format)
+  const audioContext = Tone.context.rawContext;
+  const wavData = bufferToWav(buffer, audioContext);
+
+  // Step 2: Create a Blob from the WAV data and an Object URL
+  const audioBlob = new Blob([wavData], { type: 'audio/wav' });
+  const audioUrl = URL.createObjectURL(audioBlob);
+
+  // Step 3: Create a new <audio> element
+  const audioElement = new Audio(audioUrl);
+
+  // Step 4: Customize the audio element (no autoplay, user can play it)
+  audioElement.controls = true; // Enable the controls (Play/Pause)
+
+  // Step 5: Append the audio element to the body
+
+  const controlsDiv = document.querySelector('.controls');
+  controlsDiv.appendChild(audioElement);
 };
+
+function bufferToWav(buffer, context) {
+  const numOfChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const length = buffer.length;
+
+  // Create a new AudioBuffer for the WAV data
+  const wavBuffer = context.createBuffer(numOfChannels, length, sampleRate);
+
+  for (let channel = 0; channel < numOfChannels; channel++) {
+    wavBuffer.copyToChannel(buffer.getChannelData(channel), channel);
+  }
+
+  // Encode the AudioBuffer into WAV format
+  const wavEncoder = new WaveEncoder(wavBuffer);
+  return wavEncoder.encode();
+}
+
+class WaveEncoder {
+  constructor(audioBuffer) {
+    this.audioBuffer = audioBuffer;
+  }
+
+  encode() {
+    const channels = this.audioBuffer.numberOfChannels;
+    const sampleRate = this.audioBuffer.sampleRate;
+    const length = this.audioBuffer.length;
+
+    // Calculate the buffer size (WAV header size + audio data size)
+    const bufferSize = 44 + length * channels * 2; // 2 bytes per sample (16-bit PCM)
+    const buffer = new ArrayBuffer(bufferSize);
+    const view = new DataView(buffer);
+
+    // Write the WAV header
+    this.writeString(view, 0, 'RIFF');
+    view.setUint32(4, bufferSize - 8, true); // File size excluding "RIFF" and size fields
+    this.writeString(view, 8, 'WAVE');
+    this.writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true); // Subchunk size
+    view.setUint16(20, 1, true); // Audio format (1 = PCM)
+    view.setUint16(22, channels, true); // Number of channels
+    view.setUint32(24, sampleRate, true); // Sample rate
+    view.setUint32(28, sampleRate * channels * 2, true); // Byte rate
+    view.setUint16(32, channels * 2, true); // Block align (channels * bytes per sample)
+    view.setUint16(34, 16, true); // Bits per sample (16 bits per sample)
+    this.writeString(view, 36, 'data');
+    view.setUint32(40, length * channels * 2, true); // Data size (number of samples * 2 bytes per sample)
+
+    // Write the PCM data
+    let offset = 44; // Start after the header
+    for (let i = 0; i < length; i++) {
+      for (let channel = 0; channel < channels; channel++) {
+        const sample = this.audioBuffer.getChannelData(channel)[i];
+        view.setInt16(offset, sample * 32767, true); // Convert the sample to 16-bit PCM
+        offset += 2; // Move to the next byte for the next sample
+      }
+    }
+
+    return buffer;
+  }
+
+  writeString(view, offset, str) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  }
+}
 
 const newTrack = async () => {
   await cleanupAudio();
