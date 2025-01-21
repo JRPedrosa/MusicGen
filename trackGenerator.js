@@ -1,6 +1,6 @@
 import {
-  settings,
   kickPattern1,
+  kickPattern2,
   snarePattern1,
   snarePattern2,
   hiHatPattern1,
@@ -10,21 +10,17 @@ import {
 import {
   allMelodySynths,
   allChordSynths,
-  kick,
-  kick1,
-  snare,
-  snare1,
-  hiHat,
-  hiHat1,
   createChordSynth,
   createMelodySynth,
   createHiHat,
   createKick,
   createSnare,
+  allKicks,
+  allSnares,
+  allHiHats,
 } from './synthSetup.js';
 import { generateMelody } from './melodyGen.js';
 import { generateChords } from './chordGen.js';
-import { isMobileDevice } from './utils.js';
 
 const sequences = {
   melody: null,
@@ -34,24 +30,9 @@ const sequences = {
   hiHat: null,
 };
 
-let reverb;
-
-let melodySynth = null;
-let chordSynth = null;
-let key = null;
-
 const TEMPO_RANGE = {
   MIN: 80,
   MAX: 140,
-};
-const VOLUMES = {
-  chord: -30,
-  kick: -15,
-  snare: {
-    primary: -32,
-    secondary: -30,
-  },
-  hiHat: -45,
 };
 
 const getRandomFromArray = (array) =>
@@ -88,40 +69,28 @@ const disposeSequences = () => {
     }
   });
   Object.keys(sequences).forEach((key) => (sequences[key] = null));
-  melodySynth = null;
-  reverb = null;
 };
 
-export const generateNewTrack = (trans = null) => {
+export const generateNewTrack = (transport) => {
+  //Clean-up
   disposeSequences();
 
-  const transport = trans || Tone.Transport;
-
-  // Initialize track parameters
+  // Set BPM
   transport.bpm.value =
     Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
     TEMPO_RANGE.MIN;
-  key = getRandomKey();
-  // melodySynth = getRandomFromArray(allMelodySynths).sound;
-  melodySynth = createMelodySynth();
-  melodySynth.volume.value = -30;
-
-  // Set volumes
-  allChordSynths.forEach((c) => (c.sound.volume.value = VOLUMES.chord));
-  [(kick, kick1)].forEach((k) => (k.volume.value = VOLUMES.kick));
-  snare.volume.value = VOLUMES.snare.primary;
-  snare1.volume.value = VOLUMES.snare.secondary;
-  [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
-  Tone.Destination.volume.value = 10;
 
   // Generate musical content
+  const key = getRandomKey();
   const { chords, chordTime } = generateChords(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
-  // Create melody and chord sequences
+  // Create melody sequence
+  const randomMelodySynthName = getRandomFromArray(allMelodySynths);
+  const createdMelodySynth = createMelodySynth(randomMelodySynthName);
   sequences.melody = new Tone.Part((time, event) => {
     const velocity = Math.random() * 0.5 + 0.5;
-    melodySynth.triggerAttackRelease(
+    createdMelodySynth.triggerAttackRelease(
       event.note,
       event.duration,
       time,
@@ -129,52 +98,53 @@ export const generateNewTrack = (trans = null) => {
     );
   }, melody).start(0);
 
-  // chordSynth = getRandomFromArray(allChordSynths).sound;
-  chordSynth = createChordSynth();
-  chordSynth.volume.value = VOLUMES.chord;
+  // Create chord sequence
+  const randomChordSynthName = getRandomFromArray(allChordSynths);
+  const createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
-    chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
+    createdChordSynth.triggerAttackRelease(
+      event.notes,
+      event.duration,
+      time,
+      0.3,
+    );
   }, chords).start(0);
 
   // Create drum sequences
-  const randKick = Math.random() > 0.5;
-  const createdKick = createKick();
-  createdKick.volume.value = VOLUMES.kick;
+  //Kick
+  const randomKickName = getRandomFromArray(allKicks);
+  const createdKick = createKick(randomKickName);
   sequences.kick = createDrumSequence(
     'kick',
-    // randKick ? kick : kick1,
     createdKick,
-
-    kickPattern1,
+    Math.random() > 0.4 ? kickPattern1 : kickPattern2,
     '8n',
   );
-  const createdSnare = createSnare();
-  createdSnare.volume.value = VOLUMES.snare.primary;
 
+  //Snare
+  const randomSnareName = getRandomFromArray(allSnares);
+  const createdSnare = createSnare(randomSnareName);
   sequences.snare = createDrumSequence(
     'snare',
-    // Math.random() > 0.5 ? snare : snare1,
     createdSnare,
     Math.random() > 0.4 ? snarePattern1 : snarePattern2,
     '8n',
   );
-  const createdHiHat = createHiHat();
-  createdHiHat.volume.value = VOLUMES.hiHat;
 
+  //HiHat
+  const randomHiHatName = getRandomFromArray(allHiHats);
+  const createdHiHat = createHiHat(randomHiHatName);
   sequences.hiHat = createDrumSequence(
     'hihat',
-    // Math.random() > 0.5 ? hiHat : hiHat1,
     createdHiHat,
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
     '32n',
   );
 
   // Set reverb
-  reverb = new Tone.Reverb(2.5).toDestination();
-  // if (!isMobileDevice()) {
-  chordSynth.connect(reverb);
-  melodySynth.connect(reverb);
-  // }
+  const reverb = new Tone.Reverb(2.5).toDestination();
+  createdMelodySynth.connect(reverb);
+  createdChordSynth.connect(reverb);
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
@@ -187,35 +157,31 @@ export const generateNewTrack = (trans = null) => {
     .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
     .forEach(([, sequence]) => initializeSequence(sequence, '1m'));
 
-  console.log({
+  appendTrackInfo({
     key,
     tempo: Math.floor(transport.bpm.value),
-    melodySynth: allMelodySynths.find((s) => s.sound === melodySynth)?.name,
-    chords: chords.map((c) => c.name),
+    melodySynth: randomMelodySynthName,
+    chordSynth: randomChordSynthName,
+    chords,
   });
-
-  Object.values(sequences).forEach((sequence) => {
-    if (sequence && isMobileDevice()) {
-      sequence.humanize = false; // Disable humanization for better performance
-    }
-  });
-
-  document.getElementById('0').textContent = `key: ${key}`;
-  document.getElementById('1').textContent = `tempo: ${Math.floor(
-    transport.bpm.value,
-  )}`;
-  /*   document.getElementById('2').textContent = `melodySynth: ${
-    allMelodySynths.find((s) => s.sound === melodySynth)?.name
-  }`; */
-  document.getElementById('3').textContent = `chords: ${chords.map(
-    (c) => c.name,
-  )}`;
-  /*   document.getElementById('4').textContent = `chordSynth: ${
-    allChordSynths.find((s) => s.sound === chordSynth)?.name
-  }`; */
 
   return {
     key,
     tempo: Math.floor(transport.bpm.value),
+    melodySynth: randomMelodySynthName,
+    chordSynth: randomChordSynthName,
+    kick: randomKickName,
+    snare: randomSnareName,
+    hiHat: randomHiHatName,
   };
+};
+
+const appendTrackInfo = ({ key, tempo, melodySynth, chordSynth, chords }) => {
+  document.getElementById('0').textContent = `key: ${key}`;
+  document.getElementById('1').textContent = `tempo: ${tempo}`;
+  document.getElementById('2').textContent = `melodySynth: ${melodySynth}`;
+  document.getElementById('3').textContent = `chordSynth: ${chordSynth}`;
+  document.getElementById('4').textContent = `chords: ${chords.map(
+    (c) => c.name,
+  )}`;
 };

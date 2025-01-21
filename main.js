@@ -1,13 +1,10 @@
-import { generateNewTrack, getRandomKey } from './trackGenerator.js';
+import { generateNewTrack } from './trackGenerator.js';
+import { bufferToWav } from './audioUtils.js';
 import { isMobileDevice } from './utils.js';
-import { generateMelody } from './melodyGen.js';
-import { generateChords } from './chordGen.js';
-
 let isGenerating = false;
 
 const elements = {
-  bench: document.querySelector('.bench'),
-  isMobile: document.querySelector('.isMobile'),
+  warning: document.querySelector('.warning'),
   buttons: {
     newTrack: document.getElementById('new-track'),
     play: document.getElementById('play'),
@@ -15,92 +12,31 @@ const elements = {
     offline: document.getElementById('offlineGen'),
   },
   loading: document.getElementById('loading'),
-
+  loadingMessage: document.getElementById('loadingMessage'),
   key: document.getElementById('key'),
   tempo: document.getElementById('tempo'),
-  debug: document.getElementById('debug1'),
-  debug2: document.getElementById('debug2'),
 };
 
-// Tone.js Configuration
+const OFFLINE_CONFIG = {
+  maxDuration: 20,
+  sampleRate: 22050,
+  blockSize: 128,
+  bufferSize: 1024,
+  channels: 2,
+};
+
 const configureToneJs = () => {
   const context = Tone.getContext();
   context._latencyHint = 'playback';
-  context._lookAhead = 0.5;
+  context._lookAhead = 0.1;
   context.updateInterval = 0.05;
-  const bufferSize = 2048; // or 2048 for very slow devices
-  Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
-
-  if (isMobileDevice()) {
-    context._lookAhead = 1;
-    context.updateInterval = 0.2;
-  }
-
-  if (isMobileDevice()) {
-    elements.isMobile.textContent = 'isMobile';
-    // context.sampleRate = 22100;
-  }
+  // const bufferSize = 2048; // or 2048 for very slow devices
+  // Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 };
 
-const startTransport = () => {
-  console.log('## Play');
-  Tone.context.resume().then(() => {
-    Tone.Transport.start('+0.5');
-  });
-};
+let intervalId = null;
 
-const stopTransport = async () => {
-  await Tone.Transport.stop();
-  Tone.Transport.cancel(0); // Cancel scheduled events
-  Tone.Transport.clear(); // Clear timeline events
-  Tone.Transport.position = 0;
-};
-
-const disposeTransport = () => Tone.Transport.dispose();
-
-const generateTrack = async () => {
-  if (isGenerating) return;
-
-  try {
-    isGenerating = true;
-
-    // Clean up existing audio properly
-    await cleanupAudio();
-
-    // Generate new track
-    const { key, tempo } = generateNewTrack();
-    // elements.key.textContent = `Key: ${key}`;
-    // elements.tempo.textContent = `BPM: ${tempo}`;
-
-    // Resume context if needed
-    if (Tone.context.state !== 'running') {
-      await Tone.context.resume();
-    }
-  } catch (error) {
-    console.error('Error generating track:', error);
-    elements.bench.textContent = 'Error generating track';
-  } finally {
-    isGenerating = false;
-  }
-};
-
-const sequences1 = {
-  melody: null,
-  chord: null,
-  kick: null,
-  snare: null,
-  hiHat: null,
-};
-let activePlayer = null;
 const startOffline = () => {
-  /* if (activePlayer) {
-    activePlayer.stop(); // Stop the active player
-    activePlayer.dispose(); // Dispose of the player to free up resources
-    activePlayer = null;
-    elements.buttons.offline.innerText = `offline gen (BETA)`;
-
-    return;
-  } */
   if (isGenerating) {
     return;
   }
@@ -109,12 +45,28 @@ const startOffline = () => {
   elements.buttons.offline.style.backgroundColor = 'grey';
   elements.loading.classList.add('loading-animation');
 
-  Tone.Offline(async ({ transport }) => {
-    generateNewTrack(transport);
-    transport.start(0.2);
-  }, 30)
+  const sampleRate = isMobileDevice()
+    ? OFFLINE_CONFIG.sampleRate
+    : OFFLINE_CONFIG.sampleRate * 2;
+
+  Tone.Offline(
+    async (ctx) => {
+      const { key, tempo, melodySynth, chordSynth, kick, snare, hiHat } =
+        generateNewTrack(ctx.transport);
+      ctx.transport.start(0.3);
+
+      intervalId = setInterval(() => {
+        const progress =
+          (ctx.transport.seconds / OFFLINE_CONFIG.maxDuration) * 102;
+        updateProgress(progress, intervalId, ctx);
+        console.log('## ctx', ctx);
+      }, 200);
+    },
+    OFFLINE_CONFIG.maxDuration,
+    OFFLINE_CONFIG.channels,
+    sampleRate,
+  )
     .then((buffer) => {
-      // This buffer now contains all generated audio
       console.log('Generated Buffer:', buffer);
       playBuffer(buffer); // Play the generated buffer
     })
@@ -123,130 +75,75 @@ const startOffline = () => {
     });
 };
 
-/* const playBuffer = (buffer) => {
-  activePlayer = new Tone.Player(buffer).toDestination();
-  activePlayer.start();
-  elements.loading.textContent = `Now playing!`;
-  elements.buttons.offline.innerText = `Stop`;
-}; */
-
 const playBuffer = (buffer) => {
-  // Step 1: Convert Tone.Buffer to a Blob (WAV format)
   const audioContext = Tone.context.rawContext;
   const wavData = bufferToWav(buffer, audioContext);
 
-  // Step 2: Create a Blob from the WAV data and an Object URL
   const audioBlob = new Blob([wavData], { type: 'audio/wav' });
   const audioUrl = URL.createObjectURL(audioBlob);
 
-  // Step 3: Create a new <audio> element
   const audioElement = new Audio(audioUrl);
+  audioElement.controls = true;
 
-  // Step 4: Customize the audio element (no autoplay, user can play it)
-  audioElement.controls = true; // Enable the controls (Play/Pause)
+  const audioDiv = document.querySelector('.audio');
+  audioDiv.appendChild(audioElement);
 
-  // Step 5: Append the audio element to the body
-
-  const controlsDiv = document.querySelector('.display');
-  controlsDiv.appendChild(audioElement);
   isGenerating = false;
+  clearAllTimeouts();
   elements.buttons.offline.style.backgroundColor = '#6200ea';
-  elements.loading.textContent = `Ready!`;
+  elements.loadingMessage.textContent = `Ready!`;
   elements.loading.classList.remove('loading-animation');
 };
 
-function bufferToWav(buffer, context) {
-  const numOfChannels = buffer.numberOfChannels;
-  const sampleRate = buffer.sampleRate;
-  const length = buffer.length;
+let timeoutIds = [];
+const updateProgress = (progress, intervalId) => {
+  elements.loadingMessage.textContent = `${Math.round(progress)}%`;
+  if (Math.round(progress) > 95) {
+    clearInterval(intervalId);
+    elements.loading.textContent = ``;
 
-  // Create a new AudioBuffer for the WAV data
-  const wavBuffer = context.createBuffer(numOfChannels, length, sampleRate);
+    elements.loadingMessage.textContent = `Converting to WAV..`;
 
-  for (let channel = 0; channel < numOfChannels; channel++) {
-    wavBuffer.copyToChannel(buffer.getChannelData(channel), channel);
+    timeoutIds.push(
+      setTimeout(() => {
+        if (isGenerating) {
+          elements.loadingMessage.textContent = `Normalizing the buffer`;
+        }
+      }, 4000),
+      setTimeout(() => {
+        if (isGenerating) {
+          elements.loadingMessage.textContent = `Finishing processing`;
+        }
+      }, 10000),
+      setTimeout(() => {
+        if (isGenerating) {
+          elements.loadingMessage.textContent = `Almost there!`;
+        }
+      }, 15000),
+      setTimeout(() => {
+        if (isGenerating) {
+          elements.loadingMessage.textContent = `Adding a cherry on top`;
+        }
+      }, 20000),
+      setTimeout(() => {
+        if (isGenerating) {
+          elements.loadingMessage.textContent = `I swear this is going to work`;
+        }
+      }, 27000),
+    );
   }
-
-  // Encode the AudioBuffer into WAV format
-  const wavEncoder = new WaveEncoder(wavBuffer);
-  return wavEncoder.encode();
-}
-
-class WaveEncoder {
-  constructor(audioBuffer) {
-    this.audioBuffer = audioBuffer;
-  }
-
-  encode() {
-    const channels = this.audioBuffer.numberOfChannels;
-    const sampleRate = this.audioBuffer.sampleRate;
-    const length = this.audioBuffer.length;
-
-    // Calculate the buffer size (WAV header size + audio data size)
-    const bufferSize = 44 + length * channels * 2; // 2 bytes per sample (16-bit PCM)
-    const buffer = new ArrayBuffer(bufferSize);
-    const view = new DataView(buffer);
-
-    // Write the WAV header
-    this.writeString(view, 0, 'RIFF');
-    view.setUint32(4, bufferSize - 8, true); // File size excluding "RIFF" and size fields
-    this.writeString(view, 8, 'WAVE');
-    this.writeString(view, 12, 'fmt ');
-    view.setUint32(16, 16, true); // Subchunk size
-    view.setUint16(20, 1, true); // Audio format (1 = PCM)
-    view.setUint16(22, channels, true); // Number of channels
-    view.setUint32(24, sampleRate, true); // Sample rate
-    view.setUint32(28, sampleRate * channels * 2, true); // Byte rate
-    view.setUint16(32, channels * 2, true); // Block align (channels * bytes per sample)
-    view.setUint16(34, 16, true); // Bits per sample (16 bits per sample)
-    this.writeString(view, 36, 'data');
-    view.setUint32(40, length * channels * 2, true); // Data size (number of samples * 2 bytes per sample)
-
-    // Write the PCM data
-    let offset = 44; // Start after the header
-    for (let i = 0; i < length; i++) {
-      for (let channel = 0; channel < channels; channel++) {
-        const sample = this.audioBuffer.getChannelData(channel)[i];
-        view.setInt16(offset, sample * 32767, true); // Convert the sample to 16-bit PCM
-        offset += 2; // Move to the next byte for the next sample
-      }
-    }
-
-    return buffer;
-  }
-
-  writeString(view, offset, str) {
-    for (let i = 0; i < str.length; i++) {
-      view.setUint8(offset + i, str.charCodeAt(i));
-    }
-  }
-}
-
-const newTrack = async () => {
-  await cleanupAudio();
-  await generateTrack();
 };
 
-const cleanupAudio = async () => {
-  await stopTransport();
-
-  // Clean up any active sources or effects
-  Tone.Transport.cancel();
-  Tone.context.rawContext.resume();
-
-  // Reset transport settings
-  Tone.Transport.position = 0;
-  Tone.Transport.loop = false;
+const clearAllTimeouts = () => {
+  timeoutIds.forEach((id) => clearTimeout(id));
+  timeoutIds = []; // Reset the array
 };
 
 // Event Listeners
 const setupEventListeners = () => {
-  /* elements.buttons.newTrack.addEventListener('click', newTrack);
-  elements.buttons.play.addEventListener('click', startTransport); */
   elements.buttons.offline.addEventListener('click', startOffline);
 
   window.addEventListener('beforeunload', async () => {
-    await cleanupAudio();
     Tone.context.close(); // Only close context when unloading page
   });
 
@@ -254,14 +151,13 @@ const setupEventListeners = () => {
     window.onload = async () => {
       if (!window.Tone) {
         console.error('Tone.js failed to load');
-        elements.bench.textContent = 'Error: Tone.js failed to load';
+        elements.warning.textContent = 'Error: Tone.js failed to load';
         return;
       }
 
       console.log('Tone.js is loaded');
       await Tone.start(); // Initialize Tone.js
       configureToneJs();
-      // generateTrack();
     };
   });
 };

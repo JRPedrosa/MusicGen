@@ -7,14 +7,6 @@ export const allChords = {
     V: ['G2', 'D3', 'G3', 'B3', 'D4'],
     vi: ['A2', 'E3', 'A3', 'G4', 'C4'],
   },
-  /* C: {
-    I: ['C3', 'E3', 'G3', 'B3'],
-    ii: ['D3', 'F3', 'A3', 'C4'],
-    iii: ['E3', 'G3', 'B3', 'D4'],
-    IV: ['F3', 'A3', 'C4', 'E4'],
-    V: ['G3', 'B3', 'D4', 'G4'],
-    vi: ['A3', 'C4', 'E4', 'G4'],
-  }, */
   'C#': {
     I: ['C#2', 'E#2', 'C#3', 'G#3', 'B#3'],
     ii: ['D#2', 'A#2', 'D#3', 'F#3', 'C#4'],
@@ -193,6 +185,12 @@ export const commonProgressions = [
 export const kickPattern1 = [
   { time: '0:0', note: 'C1' },
   { time: '0:2', note: 'C1' },
+];
+
+export const kickPattern2 = [
+  { time: '0:0', note: 'C1' },
+  { time: '0:2', note: 'C1' },
+  { time: '0:2:2', note: 'C1' },
 ];
 
 export const snarePattern1 = [
