@@ -41,7 +41,7 @@ const configureToneJs = () => {
       Math.sqrt(i);
     }
     const end = performance.now();
-    elements.debug.textContent = `Performance Test Time: ${end - start}ms`;
+    elements.debug2.textContent = `Performance Test Time: ${end - start}ms`;
     console.log(`Performance Test Time: ${Math.floor(end - start)}ms`);
   };
 
