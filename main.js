@@ -1,5 +1,7 @@
-import { generateNewTrack } from './trackGenerator.js';
+import { generateNewTrack, getRandomKey } from './trackGenerator.js';
 import { isMobileDevice } from './utils.js';
+import { generateMelody } from './melodyGen.js';
+import { generateChords } from './chordGen.js';
 
 let isGenerating = false;
 
@@ -10,7 +12,10 @@ const elements = {
     newTrack: document.getElementById('new-track'),
     play: document.getElementById('play'),
     stop: document.getElementById('stop'),
+    offline: document.getElementById('offlineGen'),
   },
+  loading: document.getElementById('loading'),
+
   key: document.getElementById('key'),
   tempo: document.getElementById('tempo'),
   debug: document.getElementById('debug1'),
@@ -100,6 +105,84 @@ const generateTrack = async () => {
   }
 };
 
+const sequences1 = {
+  melody: null,
+  chord: null,
+  kick: null,
+  snare: null,
+  hiHat: null,
+};
+let activePlayer = null;
+const startOffline = () => {
+  if (activePlayer) {
+    activePlayer.stop(); // Stop the active player
+    activePlayer.dispose(); // Dispose of the player to free up resources
+    activePlayer = null;
+    elements.buttons.offline.innerText = `offline gen (BETA)`;
+
+    return;
+  }
+  elements.loading.textContent = `Generating... Please wait`;
+  Tone.Offline(async ({ transport }) => {
+    /* const melodySynth = new Tone.Synth().toDestination();
+    const chordSynth = new Tone.Synth().toDestination();
+    const reverb = new Tone.Reverb(2.5).toDestination();
+    chordSynth.connect(reverb); */
+
+    /* const { chords, melody } = await generateNewTrackOffline();
+
+    melody.forEach((event, index) => {
+      melodySynth.triggerAttackRelease(
+        event.note,
+        event.duration,
+        event.time,
+        event.velocity,
+      );
+    }); */
+    /* const key = getRandomKey();
+
+    const { chords, chordTime } = generateChords(key);
+    const { melody, melodyTime } = generateMelody(chords, chordTime, key);
+
+    // Create melody and chord sequences
+    sequences1.melody = new Tone.Part((time, event) => {
+      const velocity = Math.random() * 0.5 + 0.5;
+      melodySynth.triggerAttackRelease(
+        event.note,
+        event.duration,
+        time,
+        velocity,
+      );
+    }, melody).start(0); */
+
+    /* chords.forEach((event, index) => {
+      chordSynth.triggerAttackRelease(
+        event.notes,
+        event.duration,
+        event.time,
+        event.velocity,
+      );
+    }); */
+    generateNewTrack(transport);
+    transport.start(0.2);
+  }, 30)
+    .then((buffer) => {
+      // This buffer now contains all generated audio
+      console.log('Generated Buffer:', buffer);
+      playBuffer(buffer); // Play the generated buffer
+    })
+    .catch((err) => {
+      console.error('Error in offline rendering:', err);
+    });
+};
+
+const playBuffer = (buffer) => {
+  activePlayer = new Tone.Player(buffer).toDestination();
+  activePlayer.start();
+  elements.loading.textContent = `Now playing!`;
+  elements.buttons.offline.innerText = `Stop`;
+};
+
 const newTrack = async () => {
   await cleanupAudio();
   await generateTrack();
@@ -121,6 +204,7 @@ const cleanupAudio = async () => {
 const setupEventListeners = () => {
   elements.buttons.newTrack.addEventListener('click', newTrack);
   elements.buttons.play.addEventListener('click', startTransport);
+  elements.buttons.offline.addEventListener('click', startOffline);
 
   window.addEventListener('beforeunload', async () => {
     await cleanupAudio();
@@ -144,3 +228,20 @@ const setupEventListeners = () => {
 };
 
 setupEventListeners();
+
+const generateNewTrackOffline = async () => {
+  // This function should return the chords and melody events, like the real generateNewTrack
+  // but modified for offline rendering. For example:
+  /* const chords = [
+    { notes: ['C4', 'E4', 'G4'], duration: '1n', time: 0, velocity: 0.8 },
+    { notes: ['F4', 'A4', 'C5'], duration: '1n', time: 1, velocity: 0.8 },
+  ]; */
+
+  const melody = [
+    { note: 'C4', duration: '8n', time: 0, velocity: 0.7 },
+    { note: 'D4', duration: '8n', time: 0.5, velocity: 0.7 },
+  ];
+
+  // Simulate other track details and return the events
+  return { chords: null, melody };
+};

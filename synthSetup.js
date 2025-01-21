@@ -78,6 +78,30 @@ export const allMelodySynths = [
   { sound: melody3, name: 'melody3' },
 ];
 
+export const createMelodySynth = () => {
+  return new Tone.Synth({
+    oscillator: { type: 'triangle' },
+    envelope: {
+      attack: 0.05,
+      decay: 0.1,
+      sustain: 0.3,
+      release: 0.4,
+    },
+  }).toDestination();
+};
+
+export const createChordSynth = () => {
+  return new Tone.PolySynth(Tone.Synth, {
+    // maxPolyphony: 1,
+    oscillator: { type: 'sine' },
+    envelope: {
+      attack: 0.2,
+      decay: 0.2,
+      sustain: 0.9,
+      release: 0.1,
+    },
+  }).toDestination();
+};
 export const chordSynth1 = new Tone.PolySynth(Tone.Synth, {
   // maxPolyphony: 1,
   oscillator: { type: 'sine' },
@@ -141,6 +165,50 @@ export const allChordSynths = [
 ];
 
 // DRUMS
+export const createKick = () => {
+  return new Tone.MembraneSynth({
+    pitchDecay: 0.05,
+    octaves: 5,
+    oscillator: { type: 'sine' },
+    envelope: {
+      attack: 0.01,
+      decay: 0.4,
+      sustain: 0,
+      release: 0,
+    },
+    volume: -10,
+  }).toDestination();
+};
+export const createSnare = () => {
+  return new Tone.NoiseSynth({
+    noise: {
+      type: 'white',
+      playbackRate: 3,
+      volume: 5,
+    },
+    envelope: {
+      attack: 0.005,
+      decay: 0.2,
+      sustain: 0,
+      release: 0,
+    },
+  }).toDestination();
+};
+export const createHiHat = () => {
+  return new Tone.MetalSynth({
+    frequency: 200,
+    envelope: {
+      attack: 0.001,
+      decay: 0.1,
+      sustain: 0,
+      release: 0,
+    },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4000,
+    octaves: 1.5,
+  }).toDestination();
+};
 export const kick = new Tone.MembraneSynth({
   pitchDecay: 0.05,
   octaves: 5,
