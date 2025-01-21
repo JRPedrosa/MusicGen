@@ -20,10 +20,10 @@ const elements = {
 // Tone.js Configuration
 const configureToneJs = () => {
   const context = Tone.getContext();
-  context._latencyHint = 'balanced';
+  context._latencyHint = 'playback';
   context._lookAhead = 0.5;
-  context.updateInterval = 0.1;
-  const bufferSize = 2048; // or 2048 for very slow devices
+  context.updateInterval = 0.05;
+  const bufferSize = 512; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 
   if ('deviceMemory' in navigator) {
@@ -32,6 +32,11 @@ const configureToneJs = () => {
     elements.debug.textContent = `${memory}GB of RAM.`;
   } else {
     elements.debug.textContent = `?GB of RAM.`;
+  }
+
+  if (isMobileDevice()) {
+    context._lookAhead = 1.5;
+    context.updateInterval = 0.2;
   }
 
   const estimatePerformance = () => {
