@@ -9,7 +9,7 @@ import {
 } from './constants.js';
 import {
   allMelodySynths,
-  chordSynth,
+  allChordSynths,
   kick,
   kick1,
   snare,
@@ -32,6 +32,7 @@ const sequences = {
 let reverb;
 
 let melodySynth = null;
+let chordSynth = null;
 let key = null;
 
 const TEMPO_RANGE = {
@@ -97,19 +98,12 @@ export const generateNewTrack = () => {
   melodySynth = getRandomFromArray(allMelodySynths).sound;
 
   // Set volumes
-  chordSynth.volume.value = VOLUMES.chord;
-  [kick, kick1].forEach((k) => (k.volume.value = VOLUMES.kick));
+  allChordSynths.forEach((c) => (c.sound.volume.value = VOLUMES.chord));
+  [(kick, kick1)].forEach((k) => (k.volume.value = VOLUMES.kick));
   snare.volume.value = VOLUMES.snare.primary;
   snare1.volume.value = VOLUMES.snare.secondary;
   [hiHat, hiHat1].forEach((h) => (h.volume.value = VOLUMES.hiHat));
   Tone.Destination.volume.value = 10;
-
-  // Set reverb
-  reverb = new Tone.Reverb(2.5).toDestination();
-  if (!isMobileDevice()) {
-    chordSynth.connect(reverb);
-    melodySynth.connect(reverb);
-  }
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
@@ -126,14 +120,17 @@ export const generateNewTrack = () => {
     );
   }, melody).start(0);
 
+  chordSynth = getRandomFromArray(allChordSynths).sound;
+
   sequences.chord = new Tone.Part((time, event) => {
     chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
   }, chords).start(0);
 
   // Create drum sequences
+  const randKick = Math.random() > 0.5;
   sequences.kick = createDrumSequence(
     'kick',
-    Math.random() > 0.5 ? kick : kick1,
+    randKick ? kick : kick1,
     kickPattern1,
     '8n',
   );
@@ -151,6 +148,13 @@ export const generateNewTrack = () => {
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
     '32n',
   );
+
+  // Set reverb
+  reverb = new Tone.Reverb(2.5).toDestination();
+  if (!isMobileDevice()) {
+    chordSynth.connect(reverb);
+    melodySynth.connect(reverb);
+  }
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
@@ -186,6 +190,9 @@ export const generateNewTrack = () => {
   document.getElementById('3').textContent = `chords: ${chords.map(
     (c) => c.name,
   )}`;
+  document.getElementById('4').textContent = `chordSynth: ${
+    allChordSynths.find((s) => s.sound === chordSynth)?.name
+  }`;
 
   return {
     key,

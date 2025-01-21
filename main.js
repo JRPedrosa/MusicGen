@@ -46,25 +46,6 @@ const stopTransport = async () => {
 
 const disposeTransport = () => Tone.Transport.dispose();
 
-// Track Generation
-/* const generateTrack = async () => {
-  if (isGenerating) return;
-  try {
-    isGenerating = true;
-
-    stopTransport();
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const { key, tempo } = generateNewTrack();
-    // elements.key.textContent = `Key: ${key}`;
-    // elements.tempo.textContent = `BPM: ${tempo}`;
-  } catch (error) {
-    console.error('Error generating track:', error);
-    elements.bench.textContent = 'Error generating track';
-  } finally {
-    isGenerating = false;
-  }
-}; */
-
 const generateTrack = async () => {
   if (isGenerating) return;
 

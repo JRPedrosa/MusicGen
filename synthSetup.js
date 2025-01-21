@@ -78,7 +78,7 @@ export const allMelodySynths = [
   { sound: melody3, name: 'melody3' },
 ];
 
-export const chordSynth = new Tone.PolySynth(Tone.Synth, {
+export const chordSynth1 = new Tone.PolySynth(Tone.Synth, {
   // maxPolyphony: 1,
   oscillator: { type: 'sine' },
   envelope: {
@@ -88,6 +88,57 @@ export const chordSynth = new Tone.PolySynth(Tone.Synth, {
     release: 0.1,
   },
 }).toDestination();
+
+export const chordSynth2 = new Tone.PolySynth(Tone.Synth, {
+  maxPolyphony: 5, // Match the max number of notes in your chords
+  voice: Tone.Synth,
+  options: {
+    oscillator: {
+      type: 'sine4', // More efficient than pure sine
+      partialCount: 2, // Reduce harmonics for better performance
+    },
+    envelope: {
+      attack: 0.1,
+      decay: 0.1,
+      sustain: 0.9,
+      release: 0.1,
+    },
+    // volume: -12, // Prevent clipping
+  },
+}).toDestination();
+
+export const chordSynth3 = new Tone.PolySynth(Tone.FMSynth, {
+  maxPolyphony: 5,
+  voice: Tone.FMSynth,
+  options: {
+    harmonicity: 1,
+    modulationIndex: 1,
+    oscillator: {
+      type: 'sine',
+    },
+    envelope: {
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.8,
+      release: 0.1,
+    },
+    modulation: {
+      type: 'square',
+    },
+    modulationEnvelope: {
+      attack: 0.5,
+      decay: 0,
+      sustain: 1,
+      release: 0.5,
+    },
+  },
+}).toDestination();
+
+export const allChordSynths = [
+  { sound: chordSynth1, name: 'chordSynth1' },
+  { sound: chordSynth2, name: 'chordSynth2' },
+  { sound: chordSynth3, name: 'chordSynth3' },
+];
 
 // DRUMS
 export const kick = new Tone.MembraneSynth({
@@ -100,6 +151,7 @@ export const kick = new Tone.MembraneSynth({
     sustain: 0,
     release: 0,
   },
+  volume: -10,
 }).toDestination();
 
 export const kick1 = new Tone.MembraneSynth({
@@ -112,6 +164,7 @@ export const kick1 = new Tone.MembraneSynth({
     sustain: 0,
     release: 0,
   },
+  volume: -10,
 }).toDestination();
 
 export const snare = new Tone.NoiseSynth({
