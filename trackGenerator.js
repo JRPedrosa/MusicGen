@@ -171,10 +171,10 @@ export const generateNewTrack = (trans = null) => {
 
   // Set reverb
   reverb = new Tone.Reverb(2.5).toDestination();
-  /* if (!isMobileDevice()) {
-    chordSynth.connect(reverb);
-    melodySynth.connect(reverb);
-  } */
+  // if (!isMobileDevice()) {
+  chordSynth.connect(reverb);
+  melodySynth.connect(reverb);
+  // }
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
