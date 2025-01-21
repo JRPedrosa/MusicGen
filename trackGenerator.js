@@ -126,7 +126,7 @@ export const generateNewTrack = () => {
     );
   }, melody).start(0);
 
-  /* sequences.chord = new Tone.Part((time, event) => {
+  sequences.chord = new Tone.Part((time, event) => {
     chordSynth.triggerAttackRelease(event.notes, event.duration, time, 0.3);
   }, chords).start(0);
 
@@ -150,7 +150,7 @@ export const generateNewTrack = () => {
     Math.random() > 0.5 ? hiHat : hiHat1,
     Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
     '32n',
-  ); */
+  );
 
   // Calculate and set loop lengths
   const adjustedMelodyTime =
@@ -158,10 +158,10 @@ export const generateNewTrack = () => {
 
   // Initialize all sequences
   initializeSequence(sequences.melody, adjustedMelodyTime);
-  /* initializeSequence(sequences.chord, chordTime);
+  initializeSequence(sequences.chord, chordTime);
   Object.entries(sequences)
     .filter(([name]) => ['kick', 'snare', 'hiHat'].includes(name))
-    .forEach(([, sequence]) => initializeSequence(sequence, '1m')); */
+    .forEach(([, sequence]) => initializeSequence(sequence, '1m'));
 
   console.log({
     key,
