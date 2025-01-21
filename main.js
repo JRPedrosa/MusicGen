@@ -13,6 +13,8 @@ const elements = {
   },
   key: document.getElementById('key'),
   tempo: document.getElementById('tempo'),
+  debug: document.getElementById('debug1'),
+  debug2: document.getElementById('debug2'),
 };
 
 // Tone.js Configuration
@@ -23,6 +25,27 @@ const configureToneJs = () => {
   context.updateInterval = 0.1;
   const bufferSize = 2048; // or 2048 for very slow devices
   Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
+
+  if ('deviceMemory' in navigator) {
+    const memory = navigator.deviceMemory;
+    console.log(`This device has approximately ${memory}GB of RAM.`);
+    elements.debug.textContent = `${memory}GB of RAM.`;
+  } else {
+    elements.debug.textContent = `?GB of RAM.`;
+  }
+
+  const estimatePerformance = () => {
+    const start = performance.now();
+    // Example: Perform a large computation
+    for (let i = 0; i < 100000000; i++) {
+      Math.sqrt(i);
+    }
+    const end = performance.now();
+    elements.debug.textContent = `Performance Test Time: ${end - start}ms`;
+    console.log(`Performance Test Time: ${Math.floor(end - start)}ms`);
+  };
+
+  estimatePerformance();
 
   if (isMobileDevice()) {
     elements.isMobile.textContent = 'isMobile';
