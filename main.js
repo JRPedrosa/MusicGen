@@ -41,6 +41,7 @@ const stopTransport = async () => {
   await Tone.Transport.stop();
   Tone.Transport.cancel(0); // Cancel scheduled events
   Tone.Transport.clear(); // Clear timeline events
+  Tone.Transport.position = 0;
 };
 
 const disposeTransport = () => Tone.Transport.dispose();

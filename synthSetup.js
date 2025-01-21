@@ -5,7 +5,7 @@ const melody0 = new Tone.Synth({
     attack: 0.05,
     decay: 0.1,
     sustain: 0.3,
-    release: 0.2,
+    release: 0.4,
   },
 }).toDestination();
 
@@ -18,7 +18,7 @@ const melody1 = new Tone.FMSynth({
     attack: 0.01,
     decay: 0.2,
     sustain: 0.2,
-    release: 0.2,
+    release: 0.4,
   },
 }).toDestination();
 
@@ -33,7 +33,7 @@ const melody2 = new Tone.DuoSynth({
       attack: 0.01,
       decay: 0.3,
       sustain: 0.4,
-      release: 0.2,
+      release: 0.4,
     },
   },
   voice1: {
@@ -54,7 +54,7 @@ const melody3 = new Tone.MonoSynth({
     attack: 0.05,
     decay: 0.3,
     sustain: 0.4,
-    release: 0.2,
+    release: 0.4,
   },
   filterEnvelope: {
     attack: 0.1,
@@ -79,13 +79,13 @@ export const allMelodySynths = [
 ];
 
 export const chordSynth = new Tone.PolySynth(Tone.Synth, {
-  // maxPolyphony: 2, // Increase polyphony for smoother transitions
+  // maxPolyphony: 1,
   oscillator: { type: 'sine' },
   envelope: {
-    attack: 0.2, // Slight attack for smooth note onset
-    decay: 0, // No decay, note holds as long as pressed
-    sustain: 0.9, // Sustain stays near full volume
-    release: 0.1, // Small release to avoid sudden cuts
+    attack: 0.2,
+    decay: 0.2,
+    sustain: 0.9,
+    release: 0.1,
   },
 }).toDestination();
 
