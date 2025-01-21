@@ -30,32 +30,58 @@ const configureToneJs = () => {
   }
 };
 
-// Transport Controls
 const startTransport = () => {
   console.log('## Play');
-  Tone.Transport.start('+0.5');
+  Tone.context.resume().then(() => {
+    Tone.Transport.start('+0.5');
+  });
 };
 
-const stopTransport = () => {
-  Tone.Transport.clear();
-  Tone.Transport.stop();
-  Tone.Transport.cancel();
+const stopTransport = async () => {
+  await Tone.Transport.stop();
+  Tone.Transport.cancel(0); // Cancel scheduled events
+  Tone.Transport.clear(); // Clear timeline events
 };
 
 const disposeTransport = () => Tone.Transport.dispose();
 
 // Track Generation
-const generateTrack = async () => {
+/* const generateTrack = async () => {
   if (isGenerating) return;
-
   try {
     isGenerating = true;
 
     stopTransport();
     await new Promise((resolve) => setTimeout(resolve, 100));
     const { key, tempo } = generateNewTrack();
-    /* elements.key.textContent = `Key: ${key}`;
-    elements.tempo.textContent = `BPM: ${tempo}`; */
+    // elements.key.textContent = `Key: ${key}`;
+    // elements.tempo.textContent = `BPM: ${tempo}`;
+  } catch (error) {
+    console.error('Error generating track:', error);
+    elements.bench.textContent = 'Error generating track';
+  } finally {
+    isGenerating = false;
+  }
+}; */
+
+const generateTrack = async () => {
+  if (isGenerating) return;
+
+  try {
+    isGenerating = true;
+
+    // Clean up existing audio properly
+    await cleanupAudio();
+
+    // Generate new track
+    const { key, tempo } = generateNewTrack();
+    // elements.key.textContent = `Key: ${key}`;
+    // elements.tempo.textContent = `BPM: ${tempo}`;
+
+    // Resume context if needed
+    if (Tone.context.state !== 'running') {
+      await Tone.context.resume();
+    }
   } catch (error) {
     console.error('Error generating track:', error);
     elements.bench.textContent = 'Error generating track';
@@ -64,16 +90,35 @@ const generateTrack = async () => {
   }
 };
 
+const newTrack = async () => {
+  await cleanupAudio();
+  await generateTrack();
+};
+
+const cleanupAudio = async () => {
+  await stopTransport();
+
+  // Clean up any active sources or effects
+  Tone.Transport.cancel();
+  Tone.context.rawContext.resume();
+
+  // Reset transport settings
+  Tone.Transport.position = 0;
+  Tone.Transport.loop = false;
+};
+
 // Event Listeners
 const setupEventListeners = () => {
-  elements.buttons.newTrack.addEventListener('click', generateTrack);
+  elements.buttons.newTrack.addEventListener('click', newTrack);
   elements.buttons.play.addEventListener('click', startTransport);
-  // elements.buttons.stop.addEventListener('click', stopTransport);
 
-  window.addEventListener('beforeunload', disposeTransport);
+  window.addEventListener('beforeunload', async () => {
+    await cleanupAudio();
+    Tone.context.close(); // Only close context when unloading page
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
-    window.onload = () => {
+    window.onload = async () => {
       if (!window.Tone) {
         console.error('Tone.js failed to load');
         elements.bench.textContent = 'Error: Tone.js failed to load';
@@ -81,6 +126,7 @@ const setupEventListeners = () => {
       }
 
       console.log('Tone.js is loaded');
+      await Tone.start(); // Initialize Tone.js
       configureToneJs();
       generateTrack();
     };
