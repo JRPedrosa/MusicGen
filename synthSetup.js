@@ -130,7 +130,7 @@ export const allChordSynths = {
       volume: -30,
     }).toDestination(),
 
-  chordSynth2: () =>
+  /* chordSynth2: () =>
     new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: 'triangle' },
       envelope: {
@@ -140,7 +140,7 @@ export const allChordSynths = {
         release: 0.1,
       },
       volume: -30,
-    }).toDestination(),
+    }).toDestination(), */
 
   /* chordSynth3: () =>
     new Tone.PolySynth(Tone.MonoSynth, {
