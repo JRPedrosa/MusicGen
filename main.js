@@ -5,31 +5,16 @@ let isGenerating = false;
 
 const elements = {
   warning: document.querySelector('.warning'),
-  buttons: {
-    newTrack: document.getElementById('new-track'),
-    play: document.getElementById('play'),
-    stop: document.getElementById('stop'),
-    offline: document.getElementById('offlineGen'),
-  },
+  offline: document.getElementById('offlineGen'),
   loading: document.getElementById('loading'),
   loadingMessage: document.getElementById('loadingMessage'),
-  key: document.getElementById('key'),
-  tempo: document.getElementById('tempo'),
 };
 
 const OFFLINE_CONFIG = {
   maxDuration: 20,
-  sampleRate: 22050,
-  blockSize: 128,
-  bufferSize: 1024,
+  mobileSampleRate: 22050,
+  sampleRate: 48000,
   channels: 2,
-};
-
-const configureToneJs = () => {
-  const context = Tone.getContext();
-  context._latencyHint = 'playback';
-  context._lookAhead = 0.1;
-  context.updateInterval = 0.05;
 };
 
 let intervalId = null;
@@ -40,23 +25,23 @@ const startOffline = () => {
   }
   isGenerating = true;
   elements.loading.textContent = ``;
-  elements.buttons.offline.style.backgroundColor = 'grey';
+  elements.offline.style.backgroundColor = 'grey';
   elements.loading.classList.add('loading-animation');
 
   const sampleRate = isMobileDevice()
-    ? OFFLINE_CONFIG.sampleRate
-    : OFFLINE_CONFIG.sampleRate * 2;
+    ? OFFLINE_CONFIG.mobileSampleRate
+    : OFFLINE_CONFIG.sampleRate;
 
+  const time = Date.now();
   Tone.Offline(
     async (ctx) => {
       generateNewTrack(ctx.transport);
-      ctx.transport.start(0.3);
+      ctx.transport.start(0.2);
 
       intervalId = setInterval(() => {
         const progress =
           (ctx.transport.seconds / OFFLINE_CONFIG.maxDuration) * 102;
         updateProgress(progress, intervalId, ctx);
-        console.log('## ctx', ctx);
       }, 200);
     },
     OFFLINE_CONFIG.maxDuration,
@@ -64,8 +49,8 @@ const startOffline = () => {
     sampleRate,
   )
     .then((buffer) => {
-      console.log('Generated Buffer:', buffer);
       playBuffer(buffer); // Play the generated buffer
+      console.log('timeToGenerate: ', Date.now() - time);
     })
     .catch((err) => {
       console.error('Error in offline rendering:', err);
@@ -78,16 +63,18 @@ const playBuffer = (buffer) => {
 
   const audioBlob = new Blob([wavData], { type: 'audio/wav' });
   const audioUrl = URL.createObjectURL(audioBlob);
-
   const audioElement = new Audio(audioUrl);
   audioElement.controls = true;
 
-  const audioDiv = document.querySelector('.audio');
-  audioDiv.appendChild(audioElement);
+  const audioDiv = document.querySelector('.audioDiv');
+  const wrapperDiv = document.createElement('div');
+
+  wrapperDiv.appendChild(audioElement);
+  audioDiv.appendChild(wrapperDiv);
 
   isGenerating = false;
   clearAllTimeouts();
-  elements.buttons.offline.style.backgroundColor = '#6200ea';
+  elements.offline.style.backgroundColor = '#6200ea';
   elements.loadingMessage.textContent = `Ready!`;
   elements.loading.classList.remove('loading-animation');
 };
@@ -104,12 +91,12 @@ const updateProgress = (progress, intervalId) => {
     timeoutIds.push(
       setTimeout(() => {
         if (isGenerating) {
-          elements.loadingMessage.textContent = `Normalizing the buffer`;
+          elements.loadingMessage.textContent = `Normalizing the buffer..`;
         }
       }, 4000),
       setTimeout(() => {
         if (isGenerating) {
-          elements.loadingMessage.textContent = `Finishing processing`;
+          elements.loadingMessage.textContent = `Finishing processing..`;
         }
       }, 10000),
       setTimeout(() => {
@@ -138,7 +125,7 @@ const clearAllTimeouts = () => {
 
 // Event Listeners
 const setupEventListeners = () => {
-  elements.buttons.offline.addEventListener('click', startOffline);
+  elements.offline.addEventListener('click', startOffline);
 
   window.addEventListener('beforeunload', async () => {
     Tone.context.close(); // Only close context when unloading page
@@ -154,7 +141,6 @@ const setupEventListeners = () => {
 
       console.log('Tone.js is loaded');
       await Tone.start(); // Initialize Tone.js
-      configureToneJs();
     };
   });
 };

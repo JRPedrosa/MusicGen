@@ -192,6 +192,17 @@ export const kickPatterns = {
     { time: '0:2', note: 'C1' },
     { time: '0:3:2', note: 'C1' },
   ],
+  kickPattern3: [
+    { time: '0:0', note: 'C1' },
+    { time: '0:2', note: 'C1' },
+    { time: '0:2:2', note: 'C1' },
+  ],
+  kickPattern4: [
+    { time: '0:0', note: 'C1' },
+    { time: '0:1', note: 'C1' },
+    { time: '0:2', note: 'C1' },
+    { time: '0:3', note: 'C1' },
+  ],
 };
 
 export const snarePatterns = {
@@ -222,6 +233,24 @@ export const hiHatPatterns = {
     { time: '0:2:0', note: 'G2' },
     { time: '0:2:2', note: 'G2' },
     { time: '0:3:0', note: 'G2' },
+    { time: '0:3:2', note: 'G2' },
+  ],
+  hiHatPattern3: [
+    { time: '0:0', note: 'G2' },
+    { time: '0:0:2', note: 'G2' },
+    { time: '0:1:0', note: 'G2' },
+    { time: '0:1:2', note: 'G2' },
+    { time: '0:1:3', note: 'G2' },
+    { time: '0:2:0', note: 'G2' },
+    { time: '0:2:2', note: 'G2' },
+    { time: '0:3:0', note: 'G2' },
+    { time: '0:3:2', note: 'G2' },
+  ],
+  hiHatPattern4: [
+    { time: '0:0:2', note: 'G2' },
+    { time: '0:1:2', note: 'G2' },
+    { time: '0:1:3', note: 'G2' },
+    { time: '0:2:2', note: 'G2' },
     { time: '0:3:2', note: 'G2' },
   ],
 };

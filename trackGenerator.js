@@ -32,6 +32,13 @@ const TEMPO_RANGE = {
   MAX: 140,
 };
 
+let createdMelodySynth;
+let createdChordSynth;
+let createdKick;
+let createdSnare;
+let createdHiHat;
+let reverb;
+
 const getRandomFromArray = (array) =>
   array[Math.floor(Math.random() * array.length)];
 
@@ -59,18 +66,30 @@ const initializeSequence = (sequence, loopEnd) => {
   }
 };
 
-const disposeSequences = () => {
+const cleanUpAudio = () => {
   Object.values(sequences).forEach((sequence) => {
     if (sequence) {
       sequence.dispose();
     }
   });
   Object.keys(sequences).forEach((key) => (sequences[key] = null));
+  createdMelodySynth && createdMelodySynth.dispose();
+  createdChordSynth && createdChordSynth.dispose();
+  createdKick && createdKick.dispose();
+  createdSnare && createdSnare.dispose();
+  createdHiHat && createdHiHat.dispose();
+  reverb && reverb.dispose();
+  createdMelodySynth = null;
+  createdChordSynth = null;
+  createdKick = null;
+  createdSnare = null;
+  createdHiHat = null;
+  reverb = null;
 };
 
 export const generateNewTrack = (transport) => {
   //Clean-up
-  disposeSequences();
+  cleanUpAudio();
 
   // Set BPM
   transport.bpm.value =
@@ -86,7 +105,7 @@ export const generateNewTrack = (transport) => {
   const randomMelodySynthName = getRandomFromArray(
     Object.keys(allMelodySynths),
   );
-  const createdMelodySynth = createMelodySynth(randomMelodySynthName);
+  createdMelodySynth = createMelodySynth(randomMelodySynthName);
   sequences.melody = new Tone.Part((time, event) => {
     const velocity = Math.random() * 0.5 + 0.5;
     createdMelodySynth.triggerAttackRelease(
@@ -99,7 +118,7 @@ export const generateNewTrack = (transport) => {
 
   // Create chord sequence
   const randomChordSynthName = getRandomFromArray(Object.keys(allChordSynths));
-  const createdChordSynth = createChordSynth(randomChordSynthName);
+  createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
     createdChordSynth.triggerAttackRelease(
       event.notes,
@@ -112,7 +131,7 @@ export const generateNewTrack = (transport) => {
   // --- Create drum sequences ---
   //Kick
   const randomKickName = getRandomFromArray(Object.keys(allKicks));
-  const createdKick = createKick(randomKickName);
+  createdKick = createKick(randomKickName);
 
   const randomKickPatternName = getRandomFromArray(Object.keys(kickPatterns));
   const selectedKickPattern = kickPatterns[randomKickPatternName];
@@ -127,7 +146,7 @@ export const generateNewTrack = (transport) => {
 
   //Snare
   const randomSnareName = getRandomFromArray(Object.keys(allSnares));
-  const createdSnare = createSnare(randomSnareName);
+  createdSnare = createSnare(randomSnareName);
 
   const randomSnarePatternName = getRandomFromArray(Object.keys(snarePatterns));
   const selectedSnarePattern = snarePatterns[randomSnarePatternName];
@@ -142,7 +161,7 @@ export const generateNewTrack = (transport) => {
 
   //HiHat
   const randomHiHatName = getRandomFromArray(Object.keys(allHiHats));
-  const createdHiHat = createHiHat(randomHiHatName);
+  createdHiHat = createHiHat(randomHiHatName);
 
   const randomHiHatPatternName = getRandomFromArray(Object.keys(hiHatPatterns));
   const selectedHiHatPattern = hiHatPatterns[randomHiHatPatternName];
@@ -156,7 +175,7 @@ export const generateNewTrack = (transport) => {
   );
 
   // Set reverb
-  const reverb = new Tone.Reverb(2.5).toDestination();
+  reverb = new Tone.Reverb(2.5).toDestination();
   createdMelodySynth.connect(reverb);
   createdChordSynth.connect(reverb);
 
@@ -200,7 +219,7 @@ const appendTrackInfo = ({
   hiHatPattern,
 }) => {
   document.getElementById('key').textContent = `key: ${key}`;
-  document.getElementById('tempo').textContent = `bpm: ${tempo}`;
+  document.getElementById('tempo').textContent = `BPM: ${tempo}`;
   document.getElementById(
     'melodySynth',
   ).textContent = `melodySynth: ${melodySynth}`;

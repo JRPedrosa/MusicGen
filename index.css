@@ -15,11 +15,13 @@ body {
   gap: 1rem;
 }
 
-.audio {
+.audioDiv {
+  max-height: 250px;
+  min-height: 70px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   margin-bottom: 30px;
-  gap: 1rem;
 }
 
 #offlineGen {
@@ -27,13 +29,10 @@ body {
 }
 
 #loading {
-  /* width: 300px; */
   align-content: center;
-  /* margin-bottom: 10px; */
 }
 
 #loadingMessage {
-  /* width: 300px; */
   align-content: center;
   margin-bottom: 20px;
 }

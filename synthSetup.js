@@ -7,23 +7,21 @@ export const allMelodySynths = {
         attack: 0.05,
         decay: 0.1,
         sustain: 0.3,
-        release: 0.4,
+        release: 0.8,
       },
       volume: -30,
     }).toDestination(),
 
   melody2: () =>
-    new Tone.FMSynth({
-      harmonicity: 2,
-      modulationIndex: 1,
+    new Tone.Synth({
       oscillator: { type: 'sine' },
       envelope: {
-        attack: 0.01,
-        decay: 0.2,
-        sustain: 0.2,
+        attack: 0.05,
+        decay: 0.1,
+        sustain: 0.3,
         release: 0.4,
       },
-      volume: -15,
+      volume: -28,
     }).toDestination(),
 
   melody3: () =>
@@ -53,7 +51,34 @@ export const allMelodySynths = {
     }).toDestination(),
 
   melody4: () =>
+    new Tone.DuoSynth({
+      vibratoAmount: 0.5,
+      vibratoRate: 5,
+      harmonicity: 1.5,
+      voice0: {
+        oscillator: { type: 'sawtooth' },
+        envelope: {
+          attack: 0.01,
+          decay: 0.3,
+          sustain: 0.4,
+          release: 0.4,
+        },
+      },
+      voice1: {
+        oscillator: { type: 'triangle' },
+        envelope: {
+          attack: 0.05,
+          decay: 0.2,
+          sustain: 0.3,
+          release: 0.2,
+        },
+      },
+      volume: -35,
+    }).toDestination(),
+
+  melody5: () =>
     new Tone.MonoSynth({
+      // The best one?
       oscillator: { type: 'sawtooth' },
       envelope: {
         attack: 0.05,
@@ -71,6 +96,19 @@ export const allMelodySynths = {
       },
       volume: -30,
     }).toDestination(),
+
+  melody6: () =>
+    new Tone.AMSynth({
+      oscillator: { type: 'sine' },
+      modulation: { type: 'sine' },
+      envelope: {
+        attack: 0.05,
+        decay: 0.2,
+        sustain: 0.3,
+        release: 0.7,
+      },
+      volume: -20,
+    }).toDestination(),
 };
 
 export const createMelodySynth = (name) => {
@@ -87,6 +125,30 @@ export const allChordSynths = {
         attack: 0.2,
         decay: 0.2,
         sustain: 0.9,
+        release: 0.1,
+      },
+      volume: -30,
+    }).toDestination(),
+
+  chordSynth2: () =>
+    new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'triangle' },
+      envelope: {
+        attack: 0.2,
+        decay: 0.2,
+        sustain: 0.9,
+        release: 0.1,
+      },
+      volume: -30,
+    }).toDestination(),
+
+  chordSynth3: () =>
+    new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator: { type: 'square' },
+      envelope: {
+        attack: 0.05,
+        decay: 0.1,
+        sustain: 0.5,
         release: 0.1,
       },
       volume: -30,
