@@ -182,42 +182,46 @@ export const commonProgressions = [
   ['iii', 'IV', 'vi', 'V'],
 ];
 
-export const kickPattern1 = [
-  { time: '0:0', note: 'C1' },
-  { time: '0:2', note: 'C1' },
-];
+export const kickPatterns = {
+  kickPattern1: [
+    { time: '0:0', note: 'C1' },
+    { time: '0:2', note: 'C1' },
+  ],
+  kickPattern2: [
+    { time: '0:0', note: 'C1' },
+    { time: '0:2', note: 'C1' },
+    { time: '0:3:2', note: 'C1' },
+  ],
+};
 
-export const kickPattern2 = [
-  { time: '0:0', note: 'C1' },
-  { time: '0:2', note: 'C1' },
-  { time: '0:2:2', note: 'C1' },
-];
+export const snarePatterns = {
+  snarePattern1: [
+    { time: '0:1', note: 'D1' },
+    { time: '0:3', note: 'D1' },
+  ],
+  snarePattern2: [
+    { time: '0:1', note: 'D1' },
+    { time: '0:3', note: 'D1' },
+    { time: '0:3:1', note: 'D1' },
+  ],
+};
 
-export const snarePattern1 = [
-  { time: '0:1', note: 'D1' },
-  { time: '0:3', note: 'D1' },
-];
-
-export const snarePattern2 = [
-  { time: '0:1', note: 'D1' },
-  { time: '0:3', note: 'D1' },
-  { time: '0:3:1', note: 'D1' },
-];
-
-export const hiHatPattern1 = [
-  { time: '0:0:2', note: 'G2' },
-  { time: '0:1:2', note: 'G2' },
-  { time: '0:2:2', note: 'G2' },
-  { time: '0:3:2', note: 'G2' },
-];
-
-export const hiHatPattern2 = [
-  { time: '0:0', note: 'G2' },
-  { time: '0:0:2', note: 'G2' },
-  { time: '0:1:0', note: 'G2' },
-  { time: '0:1:2', note: 'G2' },
-  { time: '0:2:0', note: 'G2' },
-  { time: '0:2:2', note: 'G2' },
-  { time: '0:3:0', note: 'G2' },
-  { time: '0:3:2', note: 'G2' },
-];
+// Define the hi-hat patterns in an object
+export const hiHatPatterns = {
+  hiHatPattern1: [
+    { time: '0:0:2', note: 'G2' },
+    { time: '0:1:2', note: 'G2' },
+    { time: '0:2:2', note: 'G2' },
+    { time: '0:3:2', note: 'G2' },
+  ],
+  hiHatPattern2: [
+    { time: '0:0', note: 'G2' },
+    { time: '0:0:2', note: 'G2' },
+    { time: '0:1:0', note: 'G2' },
+    { time: '0:1:2', note: 'G2' },
+    { time: '0:2:0', note: 'G2' },
+    { time: '0:2:2', note: 'G2' },
+    { time: '0:3:0', note: 'G2' },
+    { time: '0:3:2', note: 'G2' },
+  ],
+};

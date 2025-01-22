@@ -19,7 +19,7 @@ export const bufferToWav = (buffer, context) => {
 class WaveEncoder {
   constructor(audioBuffer) {
     this.audioBuffer = audioBuffer;
-    this.gainValue = 0.5; // Default gain boost
+    this.gainValue = 1; // Default gain boost
     this.normalize = true; // Enable normalization by default
   }
 

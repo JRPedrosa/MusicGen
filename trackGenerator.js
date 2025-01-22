@@ -1,10 +1,7 @@
 import {
-  kickPattern1,
-  kickPattern2,
-  snarePattern1,
-  snarePattern2,
-  hiHatPattern1,
-  hiHatPattern2,
+  kickPatterns,
+  snarePatterns,
+  hiHatPatterns,
   allChords,
 } from './constants.js';
 import {
@@ -31,7 +28,7 @@ const sequences = {
 };
 
 const TEMPO_RANGE = {
-  MIN: 80,
+  MIN: 70,
   MAX: 140,
 };
 
@@ -86,7 +83,9 @@ export const generateNewTrack = (transport) => {
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
   // Create melody sequence
-  const randomMelodySynthName = getRandomFromArray(allMelodySynths);
+  const randomMelodySynthName = getRandomFromArray(
+    Object.keys(allMelodySynths),
+  );
   const createdMelodySynth = createMelodySynth(randomMelodySynthName);
   sequences.melody = new Tone.Part((time, event) => {
     const velocity = Math.random() * 0.5 + 0.5;
@@ -99,7 +98,7 @@ export const generateNewTrack = (transport) => {
   }, melody).start(0);
 
   // Create chord sequence
-  const randomChordSynthName = getRandomFromArray(allChordSynths);
+  const randomChordSynthName = getRandomFromArray(Object.keys(allChordSynths));
   const createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
     createdChordSynth.triggerAttackRelease(
@@ -110,34 +109,49 @@ export const generateNewTrack = (transport) => {
     );
   }, chords).start(0);
 
-  // Create drum sequences
+  // --- Create drum sequences ---
   //Kick
-  const randomKickName = getRandomFromArray(allKicks);
+  const randomKickName = getRandomFromArray(Object.keys(allKicks));
   const createdKick = createKick(randomKickName);
+
+  const randomKickPatternName = getRandomFromArray(Object.keys(kickPatterns));
+  const selectedKickPattern = kickPatterns[randomKickPatternName];
+  const selectedKickPatternName = randomKickPatternName;
+
   sequences.kick = createDrumSequence(
     'kick',
     createdKick,
-    Math.random() > 0.4 ? kickPattern1 : kickPattern2,
+    selectedKickPattern,
     '8n',
   );
 
   //Snare
-  const randomSnareName = getRandomFromArray(allSnares);
+  const randomSnareName = getRandomFromArray(Object.keys(allSnares));
   const createdSnare = createSnare(randomSnareName);
+
+  const randomSnarePatternName = getRandomFromArray(Object.keys(snarePatterns));
+  const selectedSnarePattern = snarePatterns[randomSnarePatternName];
+  const selectedSnarePatternName = randomSnarePatternName;
+
   sequences.snare = createDrumSequence(
     'snare',
     createdSnare,
-    Math.random() > 0.4 ? snarePattern1 : snarePattern2,
+    selectedSnarePattern,
     '8n',
   );
 
   //HiHat
-  const randomHiHatName = getRandomFromArray(allHiHats);
+  const randomHiHatName = getRandomFromArray(Object.keys(allHiHats));
   const createdHiHat = createHiHat(randomHiHatName);
+
+  const randomHiHatPatternName = getRandomFromArray(Object.keys(hiHatPatterns));
+  const selectedHiHatPattern = hiHatPatterns[randomHiHatPatternName];
+  const selectedHiHatPatternName = randomHiHatPatternName;
+
   sequences.hiHat = createDrumSequence(
     'hihat',
     createdHiHat,
-    Math.random() > 0.5 ? hiHatPattern1 : hiHatPattern2,
+    selectedHiHatPattern,
     '32n',
   );
 
@@ -163,25 +177,49 @@ export const generateNewTrack = (transport) => {
     melodySynth: randomMelodySynthName,
     chordSynth: randomChordSynthName,
     chords,
-  });
-
-  return {
-    key,
-    tempo: Math.floor(transport.bpm.value),
-    melodySynth: randomMelodySynthName,
-    chordSynth: randomChordSynthName,
     kick: randomKickName,
     snare: randomSnareName,
     hiHat: randomHiHatName,
-  };
+    kickPattern: selectedKickPatternName,
+    snarePattern: selectedSnarePatternName,
+    hiHatPattern: selectedHiHatPatternName,
+  });
 };
 
-const appendTrackInfo = ({ key, tempo, melodySynth, chordSynth, chords }) => {
-  document.getElementById('0').textContent = `key: ${key}`;
-  document.getElementById('1').textContent = `tempo: ${tempo}`;
-  document.getElementById('2').textContent = `melodySynth: ${melodySynth}`;
-  document.getElementById('3').textContent = `chordSynth: ${chordSynth}`;
-  document.getElementById('4').textContent = `chords: ${chords.map(
+const appendTrackInfo = ({
+  key,
+  tempo,
+  melodySynth,
+  chordSynth,
+  chords,
+  kick,
+  snare,
+  hiHat,
+  kickPattern,
+  snarePattern,
+  hiHatPattern,
+}) => {
+  document.getElementById('key').textContent = `key: ${key}`;
+  document.getElementById('tempo').textContent = `bpm: ${tempo}`;
+  document.getElementById(
+    'melodySynth',
+  ).textContent = `melodySynth: ${melodySynth}`;
+  document.getElementById(
+    'chordSynth',
+  ).textContent = `chordSynth: ${chordSynth}`;
+  document.getElementById('chords').textContent = `chords: ${chords.map(
     (c) => c.name,
   )}`;
+  document.getElementById('kick').textContent = `kick: ${kick}`;
+  document.getElementById('snare').textContent = `snare: ${snare}`;
+  document.getElementById('hiHat').textContent = `hiHat: ${hiHat}`;
+  document.getElementById(
+    'kickPattern',
+  ).textContent = `kickPattern: ${kickPattern}`;
+  document.getElementById(
+    'snarePattern',
+  ).textContent = `snarePattern: ${snarePattern}`;
+  document.getElementById(
+    'hiHatPattern',
+  ).textContent = `hiHatPattern: ${hiHatPattern}`;
 };

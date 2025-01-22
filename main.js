@@ -30,8 +30,6 @@ const configureToneJs = () => {
   context._latencyHint = 'playback';
   context._lookAhead = 0.1;
   context.updateInterval = 0.05;
-  // const bufferSize = 2048; // or 2048 for very slow devices
-  // Tone.context.rawContext.audioWorklet.bufferSize = bufferSize;
 };
 
 let intervalId = null;
@@ -51,8 +49,7 @@ const startOffline = () => {
 
   Tone.Offline(
     async (ctx) => {
-      const { key, tempo, melodySynth, chordSynth, kick, snare, hiHat } =
-        generateNewTrack(ctx.transport);
+      generateNewTrack(ctx.transport);
       ctx.transport.start(0.3);
 
       intervalId = setInterval(() => {
