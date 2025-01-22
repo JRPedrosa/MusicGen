@@ -97,7 +97,7 @@ export const allMelodySynths = {
       volume: -30,
     }).toDestination(),
 
-  melody6: () =>
+  /* melody6: () =>
     new Tone.AMSynth({
       oscillator: { type: 'sine' },
       modulation: { type: 'sine' },
@@ -108,7 +108,7 @@ export const allMelodySynths = {
         release: 0.7,
       },
       volume: -20,
-    }).toDestination(),
+    }).toDestination(), */
 };
 
 export const createMelodySynth = (name) => {
@@ -142,7 +142,7 @@ export const allChordSynths = {
       volume: -30,
     }).toDestination(),
 
-  chordSynth3: () =>
+  /* chordSynth3: () =>
     new Tone.PolySynth(Tone.MonoSynth, {
       oscillator: { type: 'square' },
       envelope: {
@@ -152,7 +152,7 @@ export const allChordSynths = {
         release: 0.1,
       },
       volume: -30,
-    }).toDestination(),
+    }).toDestination(), */
 };
 
 export const createChordSynth = (name) => {
