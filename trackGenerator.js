@@ -91,11 +91,13 @@ export const generateNewTrack = (transport) => {
 
   // Choose random key - From C (min, max) intervals to shift down/up
   const randomPitchShift = getRandomBetween(-3, 8); // All keys - A to G#
+  // const randomPitchShift = 0;
+
   const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
-  const { melody, melodyTime } = generateMelody(chords, chordTime, key);
+  const { melody, melodyTime } = generateMelody(chords, chordTime);
 
   // Create melody sequence
   const transposedMelody = transposeNotes(melody, randomPitchShift);
