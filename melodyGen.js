@@ -22,7 +22,7 @@ const determineNextNote = (params) => {
   // If last note was in, has 50% chance of choosing an out note
   if (!lastNoteWasOutOfChord && Math.random() < PROBABILITIES.OUT_OF_CHORD) {
     const outOfChordNotes = getFilteredScaleNotes(
-      settings.allScales[key],
+      settings.scale,
       currentChord,
       false,
     );
@@ -34,7 +34,7 @@ const determineNextNote = (params) => {
 
   // Else choose note within chord
   const inChordNotes = getFilteredScaleNotes(
-    settings.allScales[key],
+    settings.scale,
     currentChord,
     true,
   );
@@ -59,7 +59,7 @@ const getClosestNoteInChord = (lastNote, scaleToUse, key) => {
     return scaleToUse[2]; // Default to third note in scale
   }
 
-  const scale = lastNote === undefined ? settings.allScales[key] : scaleToUse;
+  const scale = lastNote === undefined ? settings.scale : scaleToUse;
   const currentIndex = scale.findIndex((note) => note === lastNote);
 
   if (currentIndex === -1) {
@@ -70,7 +70,7 @@ const getClosestNoteInChord = (lastNote, scaleToUse, key) => {
 };
 
 const handleOutOfScaleNote = (lastNote, key) => {
-  const scale = settings.allScales[key];
+  const scale = settings.scale;
   const index = scale.findIndex((note) => note === lastNote);
   return getAdjacentNote(index, scale);
 };

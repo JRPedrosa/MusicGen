@@ -2,6 +2,18 @@
 export const allMelodySynths = {
   melody1: () =>
     new Tone.Synth({
+      oscillator: { type: 'sine' },
+      envelope: {
+        attack: 0.05,
+        decay: 0.1,
+        sustain: 0.3,
+        release: 0.4,
+      },
+      volume: -25,
+    }).toDestination(),
+
+  melody2: () =>
+    new Tone.Synth({
       oscillator: { type: 'triangle' },
       envelope: {
         attack: 0.05,
@@ -10,18 +22,6 @@ export const allMelodySynths = {
         release: 0.8,
       },
       volume: -30,
-    }).toDestination(),
-
-  melody2: () =>
-    new Tone.Synth({
-      oscillator: { type: 'sine' },
-      envelope: {
-        attack: 0.05,
-        decay: 0.1,
-        sustain: 0.3,
-        release: 0.4,
-      },
-      volume: -28,
     }).toDestination(),
 
   melody3: () =>
@@ -96,19 +96,6 @@ export const allMelodySynths = {
       },
       volume: -30,
     }).toDestination(),
-
-  /* melody6: () =>
-    new Tone.AMSynth({
-      oscillator: { type: 'sine' },
-      modulation: { type: 'sine' },
-      envelope: {
-        attack: 0.05,
-        decay: 0.2,
-        sustain: 0.3,
-        release: 0.7,
-      },
-      volume: -20,
-    }).toDestination(), */
 };
 
 export const createMelodySynth = (name) => {
@@ -120,6 +107,7 @@ export const createMelodySynth = (name) => {
 export const allChordSynths = {
   chordSynth1: () =>
     new Tone.PolySynth(Tone.Synth, {
+      maxPoliphony: 10,
       oscillator: { type: 'sine' },
       envelope: {
         attack: 0.2,
@@ -129,30 +117,6 @@ export const allChordSynths = {
       },
       volume: -30,
     }).toDestination(),
-
-  /* chordSynth2: () =>
-    new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: {
-        attack: 0.2,
-        decay: 0.2,
-        sustain: 0.9,
-        release: 0.1,
-      },
-      volume: -30,
-    }).toDestination(), */
-
-  /* chordSynth3: () =>
-    new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator: { type: 'square' },
-      envelope: {
-        attack: 0.05,
-        decay: 0.1,
-        sustain: 0.5,
-        release: 0.1,
-      },
-      volume: -30,
-    }).toDestination(), */
 };
 
 export const createChordSynth = (name) => {

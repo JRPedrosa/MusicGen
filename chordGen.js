@@ -15,7 +15,7 @@ export const generateChords = (key) => {
 
     chords.push({
       time: chordTime,
-      notes: allChords[key][chordSymbol],
+      notes: allChords[chordSymbol],
       duration: '1n',
       name: chordSymbol,
     });

@@ -1,9 +1,12 @@
 import {
-  kickPatterns,
-  snarePatterns,
-  hiHatPatterns,
-  allChords,
-} from './constants.js';
+  getRandomBetween,
+  getRandomFromArray,
+  transposeNotes,
+  appendTrackInfo,
+} from './utils.js';
+import { kickPatterns, snarePatterns, hiHatPatterns } from './constants.js';
+import { generateMelody } from './melodyGen.js';
+import { generateChords } from './chordGen.js';
 import {
   allMelodySynths,
   allChordSynths,
@@ -16,8 +19,6 @@ import {
   allSnares,
   allHiHats,
 } from './synthSetup.js';
-import { generateMelody } from './melodyGen.js';
-import { generateChords } from './chordGen.js';
 
 const sequences = {
   melody: null,
@@ -38,14 +39,6 @@ let createdKick;
 let createdSnare;
 let createdHiHat;
 let reverb;
-
-const getRandomFromArray = (array) =>
-  array[Math.floor(Math.random() * array.length)];
-
-export const getRandomKey = () => {
-  const keys = Object.keys(allChords);
-  return getRandomFromArray(keys);
-};
 
 const createDrumSequence = (type, instrument, pattern, noteLength) => {
   if (type === 'snare') {
@@ -96,12 +89,16 @@ export const generateNewTrack = (transport) => {
     Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
     TEMPO_RANGE.MIN;
 
+  // Choose random key - From C (min, max) intervals to shift down/up
+  const randomPitchShift = getRandomBetween(-3, 8); // All keys - A to G#
+  const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
+
   // Generate musical content
-  const key = getRandomKey();
   const { chords, chordTime } = generateChords(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime, key);
 
   // Create melody sequence
+  const transposedMelody = transposeNotes(melody, randomPitchShift);
   const randomMelodySynthName = getRandomFromArray(
     Object.keys(allMelodySynths),
   );
@@ -114,9 +111,10 @@ export const generateNewTrack = (transport) => {
       time,
       velocity,
     );
-  }, melody).start(0);
+  }, transposedMelody).start(0);
 
   // Create chord sequence
+  const transposedChords = transposeNotes(chords, randomPitchShift);
   const randomChordSynthName = getRandomFromArray(Object.keys(allChordSynths));
   createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
@@ -126,7 +124,7 @@ export const generateNewTrack = (transport) => {
       time,
       0.3,
     );
-  }, chords).start(0);
+  }, transposedChords).start(0);
 
   // --- Create drum sequences ---
   //Kick
@@ -179,7 +177,7 @@ export const generateNewTrack = (transport) => {
   createdMelodySynth.connect(reverb);
   createdChordSynth.connect(reverb);
 
-  // Calculate and set loop lengths
+  // Calculate and set loop lengths - Do I need this?
   const adjustedMelodyTime =
     melodyTime + (chordTime - (melodyTime % chordTime));
 
@@ -194,7 +192,6 @@ export const generateNewTrack = (transport) => {
     key,
     tempo: Math.floor(transport.bpm.value),
     melodySynth: randomMelodySynthName,
-    chordSynth: randomChordSynthName,
     chords,
     kick: randomKickName,
     snare: randomSnareName,
@@ -203,42 +200,4 @@ export const generateNewTrack = (transport) => {
     snarePattern: selectedSnarePatternName,
     hiHatPattern: selectedHiHatPatternName,
   });
-};
-
-const appendTrackInfo = ({
-  key,
-  tempo,
-  melodySynth,
-  chordSynth,
-  chords,
-  kick,
-  snare,
-  hiHat,
-  kickPattern,
-  snarePattern,
-  hiHatPattern,
-}) => {
-  document.getElementById('key').textContent = `key: ${key}`;
-  document.getElementById('tempo').textContent = `BPM: ${tempo}`;
-  document.getElementById(
-    'melodySynth',
-  ).textContent = `melodySynth: ${melodySynth}`;
-  document.getElementById(
-    'chordSynth',
-  ).textContent = `chordSynth: ${chordSynth}`;
-  document.getElementById('chords').textContent = `chords: ${chords.map(
-    (c) => c.name,
-  )}`;
-  document.getElementById('kick').textContent = `kick: ${kick}`;
-  document.getElementById('snare').textContent = `snare: ${snare}`;
-  document.getElementById('hiHat').textContent = `hiHat: ${hiHat}`;
-  document.getElementById(
-    'kickPattern',
-  ).textContent = `kickPattern: ${kickPattern}`;
-  document.getElementById(
-    'snarePattern',
-  ).textContent = `snarePattern: ${snarePattern}`;
-  document.getElementById(
-    'hiHatPattern',
-  ).textContent = `hiHatPattern: ${hiHatPattern}`;
 };
