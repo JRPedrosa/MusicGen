@@ -29,8 +29,8 @@ const sequences = {
 };
 
 const TEMPO_RANGE = {
-  MIN: 70,
-  MAX: 140,
+  MIN: 90,
+  MAX: 150,
 };
 
 let createdMelodySynth;
