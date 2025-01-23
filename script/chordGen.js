@@ -12,6 +12,7 @@ export const generateChords = () => {
 
   for (let i = 0; i < selectedProgression.length; i++) {
     const chordSymbol = selectedProgression[i];
+    console.log('||| notes', allChords[chordSymbol]);
 
     chords.push({
       time: chordTime,
@@ -20,7 +21,10 @@ export const generateChords = () => {
       name: chordSymbol,
     });
 
+    console.log('||| chords', chords);
+
     chordTime += Tone.Time('1n').toSeconds();
+    console.log('||| chordTime', chordTime);
   }
 
   return { chords, chordTime };

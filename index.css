@@ -12,7 +12,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
 }
 
 .audioDiv {
@@ -48,11 +47,13 @@ body {
 
 #loading {
   align-content: center;
+  height: 5px;
+  margin: 10px 0;
 }
 
 #loadingMessage {
   align-content: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .title {
@@ -80,7 +81,7 @@ button:hover {
   animation: dots 1.5s infinite steps(5, end);
 }
 
-@keyframes dots {
+/* @keyframes dots {
   0% {
     content: 'Generating';
   }
@@ -95,5 +96,23 @@ button:hover {
   }
   100% {
     content: 'Generating';
+  }
+} */
+
+@keyframes dots {
+  0% {
+    content: '.';
+  }
+  25% {
+    content: '..';
+  }
+  50% {
+    content: '...';
+  }
+  75% {
+    content: '..';
+  }
+  100% {
+    content: '.';
   }
 }

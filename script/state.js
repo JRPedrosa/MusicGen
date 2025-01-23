@@ -9,6 +9,7 @@ export const elements = {
   outOfChordValue: document.getElementById('outOfChordValue'),
   closestNoteValue: document.getElementById('closestNoteValue'),
   restValue: document.getElementById('restValue'),
+  timeToGenerate: document.getElementById('timeToGenerate'),
 };
 
 export const PROBABILITIES = {

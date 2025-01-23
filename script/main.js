@@ -30,12 +30,19 @@ const startOffline = () => {
   const time = Date.now();
   Tone.Offline(
     async (ctx) => {
+      ctx.debug = true;
       generateNewTrack(ctx.transport);
+      console.log(ctx);
+      /* Tone.Transport.addEventListener('stop', () => {
+        console.log('## Transport has stopped!');
+        // Add your code to handle the "stop" event here
+      }); */
       ctx.transport.start(0.2);
 
       intervalId = setInterval(() => {
         const progress =
           (ctx.transport.seconds / OFFLINE_CONFIG.maxDuration) * 102;
+
         updateProgress(progress, intervalId, ctx);
       }, 200);
     },
@@ -45,7 +52,11 @@ const startOffline = () => {
   )
     .then((buffer) => {
       playBuffer(buffer); // Play the generated buffer
-      console.log('timeToGenerate: ', Date.now() - time);
+      console.log('timeToGenerate: ', ((Date.now() - time) / 1000).toFixed(1));
+      elements.loadingMessage.textContent = `Generated in: ${(
+        (Date.now() - time) /
+        1000
+      ).toFixed(1)}s`;
     })
     .catch((err) => {
       console.error('Error in offline rendering:', err);
@@ -71,7 +82,6 @@ const playBuffer = (buffer) => {
   isGenerating = false;
   clearAllTimeouts();
   elements.offline.style.backgroundColor = '#6200ea';
-  elements.loadingMessage.textContent = `Ready!`;
   elements.loading.classList.remove('loading-animation');
 };
 

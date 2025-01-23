@@ -19,7 +19,7 @@ import {
   allSnares,
   allHiHats,
 } from './synthSetup.js';
-// import { generateChordsArpeggio } from './chordGenArpeggio.js';
+import { generateChordsArpeggio } from './chordGenArpeggio.js';
 
 const sequences = {
   melody: null,
@@ -90,13 +90,16 @@ export const generateNewTrack = (transport) => {
     Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
     TEMPO_RANGE.MIN;
 
+  transport.timeSignature = 4;
+  transport.swing = 0;
+
   // Choose random key - From C (min, max) intervals to shift up
   const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
   const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
-  // const { chordsArpeggio, chordTimeArpeggio } = generateChordsArpeggio(key);
+  const { chordsArpeggio } = generateChordsArpeggio(key);
   const { melody, melodyTime } = generateMelody(chords, chordTime);
 
   // Create melody sequence
@@ -134,7 +137,7 @@ export const generateNewTrack = (transport) => {
   createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
     createdChordSynth.triggerAttackRelease(
-      event.note, // Single note
+      event.notes,
       event.duration,
       time,
       0.3,

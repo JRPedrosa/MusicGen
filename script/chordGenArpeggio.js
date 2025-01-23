@@ -13,18 +13,31 @@ export const generateChordsArpeggio = () => {
   for (let i = 0; i < selectedProgression.length; i++) {
     const chordSymbol = selectedProgression[i];
     const notes = allChords[chordSymbol];
+    console.log('||| notes', notes);
 
-    // Add individual note events
-    notes.forEach((note, idx) => {
+    chordsArpeggio.push({
+      time: chordTimeArpeggio, // Offset after the first two notes
+      notes: notes.slice(0, 2), // Remaining notes as a block
+      duration: '1n',
+      name: chordSymbol,
+    });
+
+    const eigthNoteTime = Tone.Time('8n').toSeconds();
+    // let currentMeasureTime = 0;
+    notes.slice(-3).forEach((note, i) => {
       chordsArpeggio.push({
-        time: chordTimeArpeggio + idx * 0.2, // Add slight delay between notes for arpeggiation
-        note: note,
-        duration: '1n',
+        time: chordTimeArpeggio + eigthNoteTime * i,
+        notes: [note],
+        duration: `${4 - i * 0.5}n`,
         name: chordSymbol,
       });
+      // currentMeasureTime += Tone.Time('8n').toSeconds();
     });
 
     chordTimeArpeggio += Tone.Time('1n').toSeconds();
+
+    console.log('||| chordsArpeggio', chordsArpeggio);
+    console.log('||| chordTimeArpeggio', chordTimeArpeggio);
   }
 
   return { chordsArpeggio, chordTimeArpeggio };
