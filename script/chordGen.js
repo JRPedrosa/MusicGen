@@ -1,6 +1,6 @@
 import { commonProgressions, allChords } from './constants.js';
 
-export const generateChords = (key) => {
+export const generateChords = () => {
   const selectedProgression = [
     ...commonProgressions[
       Math.floor(Math.random() * commonProgressions.length)
