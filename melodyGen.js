@@ -1,139 +1,103 @@
 import { settings } from './constants.js';
+// import { PROBABILITIES } from './state.js';
+import {
+  getRandomFromArray,
+  getNoteChordRelation,
+  getInOutScaleNotes,
+  calculateBeatsAndMeasure,
+  getClosestAvailableNote,
+} from './utils.js';
 
 const PROBABILITIES = {
-  OUT_OF_CHORD: 0.5,
+  OUT_OF_CHORD: 0.7,
   CLOSEST_NOTE: 0.8,
-  REST: 0.1,
-};
-
-const isNoteInChord = (note, chord) => {
-  return chord.some((chordNote) => chordNote.charAt(0) === note.charAt(0));
-};
-
-const getFilteredScaleNotes = (scale, chord, includeChordNotes = true) => {
-  return scale.filter(
-    (note) => includeChordNotes === isNoteInChord(note, chord),
-  );
-};
-
-const getNoteChordRelation = (chord, singleNote) => {
-  if (!singleNote) return 'pause';
-  // Helper function to extract only the letters (note names) from the notes
-  const extractNote = (note) => note.replace(/\d/g, '');
-
-  // Extract the first note from the chord and construct the circular array
-  const baseNote = extractNote(chord[0]);
-  const noteOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const startIndex = noteOrder.indexOf(baseNote);
-
-  // Create the circular array starting from the base note
-  const circularArray = [];
-  for (let i = 0; i < noteOrder.length; i++) {
-    circularArray.push(noteOrder[(startIndex + i) % noteOrder.length]);
-  }
-
-  // Extract the letter from the singleNote and find its index in the circular array
-  const targetNote = extractNote(singleNote);
-  const index = circularArray.indexOf(targetNote);
-
-  // Return the index + 1 (or -1 if the note is not found)
-  return index !== -1 ? index + 1 : -1;
+  REST: 0.15,
 };
 
 const determineNextNote = (params) => {
-  const { lastNote, lastNoteWasOutOfChord, currentChord } = params;
-  console.log('## ------- currentChord -------', currentChord);
+  const { beats, lastNote, lastNoteWasOutOfChord, currentChord } = params;
+  console.log('/////////////////////////////////////////////////////////');
+  const currentBeatInMeasure = beats[beats.length - 1]?.beat;
+  const isStrongBeat =
+    currentBeatInMeasure === 0 &&
+    currentBeatInMeasure === 1 &&
+    currentBeatInMeasure === 2 &&
+    currentBeatInMeasure === 3;
 
-  // If last note was in, has 50% chance of choosing an out note
-  if (!lastNoteWasOutOfChord && Math.random() < PROBABILITIES.OUT_OF_CHORD) {
-    console.log('## Choosing an OUT note');
-    const outOfChordNotes = getFilteredScaleNotes(
-      settings.scale,
-      currentChord,
-      false,
-    );
-
-    const chosenNote = getClosestNoteInChord(lastNote, outOfChordNotes);
-
-    const noteChordRelation = getNoteChordRelation(currentChord, chosenNote);
-
-    console.log('## note chosen: ', chosenNote);
-    console.log('### noteChordRelation', noteChordRelation);
-
+  let chosenNote;
+  // If the chord changed and lastNote was OUT but now is IN. Let the chord change resolve it
+  /* const lastNoteIsInTheCurrentChord = currentChord.filter(
+    (note) => note.charAt(0) === lastNote?.charAt(0),
+  ).length;
+  if (lastNote && lastNoteWasOutOfChord && lastNoteIsInTheCurrentChord) {
+    console.log('## keeping Old note');
     return {
-      note: chosenNote,
-      isOutOfChord: true,
+      note: lastNote,
+      isOutOfChord: false,
+    };
+  } */
+
+  if (Math.random() < PROBABILITIES.REST && !lastNoteWasOutOfChord) {
+    return {
+      note: undefined,
+      isOutOfChord: false, //Considering rests as IN chord. Only happens after an IN note
     };
   }
 
-  console.log('## Choosing an IN note');
+  // If last note was in, has xx% chance of choosing an out note
+  const willChooseOutNote =
+    !lastNoteWasOutOfChord &&
+    // !isStrongBeat &&
+    Math.random() < PROBABILITIES.OUT_OF_CHORD;
 
-  // Else choose note within chord
-  const inChordNotes = getFilteredScaleNotes(
+  const notesToUse = getInOutScaleNotes(
     settings.scale,
     currentChord,
-    true,
+    !willChooseOutNote,
   );
+
+  const allThirdsAvailable = notesToUse.filter(
+    (note) => note.charAt(0) === currentChord[1].charAt(0),
+  );
+
+  const notesToUseWithoutRoot = notesToUse.filter(
+    (note) => note.charAt(0) !== currentChord[0].charAt(0),
+  );
+  console.log('## currentChord', currentChord);
   const useClosestNote =
-    lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE; // If last note was out will always resolve to the closest, else has 20% chance to jump around
+    lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE;
 
-  const note = useClosestNote
-    ? getClosestNoteInChord(lastNote, inChordNotes)
-    : inChordNotes[Math.floor(Math.random() * inChordNotes.length)];
+  /* if (lastNote && lastNoteWasOutOfChord && allThirdsAvailable.length) {
+    chosenNote = getClosestAvailableNote(
+      lastNote,
+      allThirdsAvailable,
+      settings.scale,
+    );
+  } else  */
+  if (lastNote && useClosestNote) {
+    chosenNote = getClosestAvailableNote(lastNote, notesToUse, settings.scale);
+  } else {
+    // Jump around
+    chosenNote = getRandomFromArray(notesToUse);
+  }
 
-  const noteChordRelation = getNoteChordRelation(currentChord, note);
-
-  console.log('## note chosen: ', note);
-  console.log('## noteChordRelation: ', noteChordRelation);
+  const finalNoteIsInTheCurrentChord = currentChord.filter(
+    (note) => note.charAt(0) === chosenNote.charAt(0),
+  ).length;
 
   return {
-    note,
-    isOutOfChord: false,
+    note: chosenNote,
+    isOutOfChord: !finalNoteIsInTheCurrentChord,
   };
-};
-
-const getClosestNoteInChord = (lastNote, notesToUse) => {
-  console.log('## notesToUse', notesToUse);
-
-  if (Math.random() < PROBABILITIES.REST) {
-    return undefined;
-  }
-
-  if (!lastNote) {
-    return notesToUse[2]; // Default to third note in scale
-  }
-
-  const scale = lastNote === undefined ? settings.scale : notesToUse;
-  const currentIndex = scale.findIndex((note) => note === lastNote);
-
-  if (currentIndex === -1) {
-    return handleOutOfScaleNote(lastNote);
-  }
-
-  const chosenNote = getAdjacentNote(currentIndex, scale);
-
-  return chosenNote;
-};
-
-const handleOutOfScaleNote = (lastNote) => {
-  const scale = settings.scale;
-  const index = scale.findIndex((note) => note === lastNote);
-  return getAdjacentNote(index, scale);
-};
-
-const getAdjacentNote = (index, scale) => {
-  const upOrDown = Math.random() < 0.5 ? -1 : 1;
-  if (index === 0) return scale[1];
-  if (index === scale.length - 1) return scale[scale.length - 2];
-  return scale[index + upOrDown];
 };
 
 export const generateMelody = (chords, chordTime) => {
   const melody = [];
   let melodyTime = 0;
-  let lastNoteWasOutOfChord = false;
+  let lastNoteWasOutOfChord = true;
   let lastNote;
-
+  let beats = [];
+  console.log(PROBABILITIES);
   const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
 
   while (melodyTime < maxMelodyTime) {
@@ -142,10 +106,13 @@ export const generateMelody = (chords, chordTime) => {
     const currentChord = chords[currentChordIndex].notes;
 
     const { note, isOutOfChord } = determineNextNote({
+      beats,
       lastNote,
       lastNoteWasOutOfChord,
       currentChord,
     });
+
+    // console.log('##### currentMelody:', melody);
 
     const duration = isOutOfChord
       ? '8n'
@@ -153,11 +120,25 @@ export const generateMelody = (chords, chordTime) => {
           Math.floor(Math.random() * settings.durations.length)
         ];
 
+    const noteChordRelation = getNoteChordRelation(currentChord, note);
+    console.log(
+      '#### lastNote:',
+      lastNote,
+      'chosen note:',
+      note,
+      'relation:',
+      noteChordRelation,
+      'duration',
+      duration,
+    );
+
     melody.push({
       time: melodyTime,
       note,
       duration,
     });
+
+    beats = calculateBeatsAndMeasure(melody);
 
     melodyTime += Tone.Time(duration).toSeconds();
     lastNote = note;

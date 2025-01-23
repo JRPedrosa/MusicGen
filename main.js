@@ -1,14 +1,9 @@
 import { generateNewTrack } from './trackGenerator.js';
 import { bufferToWav } from './audioUtils.js';
 import { isMobileDevice } from './utils.js';
-let isGenerating = false;
+import { PROBABILITIES, elements } from './state.js';
 
-const elements = {
-  warning: document.querySelector('.warning'),
-  offline: document.getElementById('offlineGen'),
-  loading: document.getElementById('loading'),
-  loadingMessage: document.getElementById('loadingMessage'),
-};
+let isGenerating = false;
 
 const OFFLINE_CONFIG = {
   maxDuration: 20,
@@ -65,6 +60,7 @@ const playBuffer = (buffer) => {
   const audioUrl = URL.createObjectURL(audioBlob);
   const audioElement = new Audio(audioUrl);
   audioElement.controls = true;
+  // audioElement.loop = true;
 
   const audioDiv = document.querySelector('.audioDiv');
   const wrapperDiv = document.createElement('div');
@@ -82,7 +78,7 @@ const playBuffer = (buffer) => {
 let timeoutIds = [];
 const updateProgress = (progress, intervalId) => {
   elements.loadingMessage.textContent = `${Math.round(progress)}%`;
-  if (Math.round(progress) > 95) {
+  if (Math.round(progress) > 85) {
     clearInterval(intervalId);
     elements.loading.textContent = ``;
 
@@ -127,6 +123,21 @@ const clearAllTimeouts = () => {
 const setupEventListeners = () => {
   elements.offline.addEventListener('click', startOffline);
 
+  /* elements.outOfChordSlider.addEventListener('input', (event) => {
+    PROBABILITIES.OUT_OF_CHORD = parseFloat(event.target.value);
+    outOfChordValue.textContent = event.target.value;
+  });
+
+  elements.closestNoteSlider.addEventListener('input', (event) => {
+    PROBABILITIES.CLOSEST_NOTE = parseFloat(event.target.value);
+    closestNoteValue.textContent = event.target.value;
+  });
+
+  elements.restSlider.addEventListener('input', (event) => {
+    PROBABILITIES.REST = parseFloat(event.target.value);
+    restValue.textContent = event.target.value;
+  });
+ */
   window.addEventListener('beforeunload', async () => {
     Tone.context.close(); // Only close context when unloading page
   });

@@ -28,6 +28,24 @@ body {
   width: 120px;
 }
 
+.sliders {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  margin-bottom: 20px;
+}
+
+.sliderIndividual {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.sliderIndividualBar {
+  display: flex;
+  width: 150px;
+}
+
 #loading {
   align-content: center;
 }

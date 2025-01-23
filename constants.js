@@ -1,18 +1,27 @@
 export const allChords = {
-  I: ['C2', 'G2', 'C3', 'E3', 'B3'],
+  // 7ths - OUT_OF_CHORD to 0.5
+  /* I: ['C2', 'G2', 'C3', 'E3', 'B3'],
   ii: ['D2', 'A2', 'D3', 'F3', 'C4'],
   iii: ['E2', 'B2', 'E3', 'G3', 'D4'],
   IV: ['F2', 'C3', 'F3', 'A3', 'E4'],
   V: ['G2', 'D3', 'G3', 'B3', 'D4'],
-  vi: ['A2', 'E3', 'A3', 'C4', 'G4'],
+  vi: ['A2', 'E3', 'A3', 'C4', 'G4'], */
 
-  /* // Close triads
-    I: ['C3', 'E3', 'G3'],
-    ii: ['D3', 'F3', 'A3'],
-    iii: ['E3', 'G3', 'B3'],
-    IV: ['F3', 'A3', 'C4'],
-    V: ['G3', 'B3', 'D4'],
-    vi: ['A3', 'C4', 'E4'], */
+  // Fuller triads - OUT_OF_CHORD to 0.8/0.7
+  I: ['C2', 'G2', 'C3', 'E3', 'G3'],
+  ii: ['D2', 'A2', 'D3', 'F3', 'A3'],
+  iii: ['E2', 'B2', 'E3', 'G3', 'B3'],
+  IV: ['F2', 'C3', 'F3', 'A3', 'C4'],
+  V: ['G2', 'D3', 'G3', 'B3', 'D4'],
+  vi: ['A2', 'E3', 'A3', 'C4', 'E4'],
+
+  // Close triads - OUT_OF_CHORD to 0.8
+  /* I: ['C3', 'E3', 'G3'],
+  ii: ['D3', 'F3', 'A3'],
+  iii: ['E3', 'G3', 'B3'],
+  IV: ['F3', 'A3', 'C4'],
+  V: ['G3', 'B3', 'D4'],
+  vi: ['A3', 'C4', 'E4'], */
 };
 
 export const settings = {
@@ -31,18 +40,21 @@ export const settings = {
     'G5',
   ],
   durations: ['4n', '2n', '4n'],
+  // durations: ['4n', '2n', '4n', '8n', '8n', '8n', '8n', '8n'],
 };
 
 export const commonProgressions = [
+  ['I', 'V', 'vi', 'IV'],
   ['I', 'vi', 'IV', 'V'],
-  ['ii', 'V', 'I', 'vi'],
   ['vi', 'V', 'IV', 'V'],
   ['vi', 'IV', 'V', 'iii'],
-  ['I', 'V', 'vi', 'IV'],
   ['vi', 'ii', 'V', 'iii'],
+  ['ii', 'V', 'I', 'vi'],
   ['ii', 'IV', 'I', 'V'],
-  ['IV', 'V', 'vi', 'iii'],
   ['iii', 'IV', 'vi', 'V'],
+  ['IV', 'V', 'vi', 'iii'],
+  ['ii', 'V', 'ii', 'IV'],
+  ['V', 'IV', 'I', 'IV'],
 ];
 
 export const kickPatterns = {

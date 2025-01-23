@@ -1,5 +1,5 @@
 import {
-  getRandomBetween,
+  getRandomNumBetween,
   getRandomFromArray,
   transposeNotes,
   appendTrackInfo,
@@ -90,7 +90,7 @@ export const generateNewTrack = (transport) => {
     TEMPO_RANGE.MIN;
 
   // Choose random key - From C (min, max) intervals to shift down/up
-  const randomPitchShift = getRandomBetween(-3, 8); // All keys - A to G#
+  const randomPitchShift = getRandomNumBetween(-3, 8); // All keys - A to G#
   // const randomPitchShift = 0;
 
   const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
@@ -175,7 +175,7 @@ export const generateNewTrack = (transport) => {
   );
 
   // Set reverb
-  reverb = new Tone.Reverb(2.5).toDestination();
+  reverb = new Tone.Reverb(5).toDestination();
   createdMelodySynth.connect(reverb);
   createdChordSynth.connect(reverb);
 
