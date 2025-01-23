@@ -125,24 +125,24 @@ export const appendTrackInfo = ({
   tempo,
   melodySynth,
   chords,
-  kick,
+  /*  kick,
   snare,
   hiHat,
   kickPattern,
   snarePattern,
-  hiHatPattern,
+  hiHatPattern, */
 }) => {
-  document.getElementById('key').textContent = `key: ${key}`;
   document.getElementById('tempo').textContent = `BPM: ${tempo}`;
+  document.getElementById('key').textContent = `Key: ${key}`;
   document.getElementById(
     'melodySynth',
-  ).textContent = `melodySynth: ${melodySynth}`;
-  document.getElementById('chords').textContent = `chords: ${chords.map(
+  ).textContent = `MelodySynth: ${melodySynth}`;
+  document.getElementById('chords').textContent = `Chords: ${chords.map(
     (c) => c.name,
   )}`;
-  document.getElementById('kick').textContent = `${kick} - ${kickPattern}`;
+  /* document.getElementById('kick').textContent = `${kick} - ${kickPattern}`;
   document.getElementById('snare').textContent = `${snare} - ${snarePattern}`;
-  document.getElementById('hiHat').textContent = `${hiHat} - ${hiHatPattern}`;
+  document.getElementById('hiHat').textContent = `${hiHat} - ${hiHatPattern}`; */
 };
 
 export const calculateRecordingTime = (bpm, numberOfMeasures) => {

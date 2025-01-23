@@ -12,6 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 130px;
 }
 
 .audioDiv {
@@ -54,6 +55,13 @@ body {
 #loadingMessage {
   align-content: center;
   margin: 20px 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 90px;
 }
 
 .title {

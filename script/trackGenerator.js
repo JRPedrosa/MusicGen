@@ -30,7 +30,7 @@ const sequences = {
 };
 
 const TEMPO_RANGE = {
-  MIN: 90,
+  MIN: 80,
   MAX: 150,
 };
 
