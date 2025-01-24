@@ -85,22 +85,30 @@ export const generateNewTrack = (transport) => {
   //Clean-up
   cleanUpAudio();
 
-  // Set BPM
+  // Set BPM and time signature
   transport.bpm.value =
     Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
     TEMPO_RANGE.MIN;
+  // const timeSignature = getRandomFromArray([3, 4, 4]); //Twice as likely to be 4/4
+  const timeSignature = 3; //Twice as likely to be 4/4
 
-  transport.timeSignature = 4;
-  transport.swing = 0;
+  transport.timeSignature = timeSignature;
+  // transport.swing = 0;
 
   // Choose random key - From C (min, max) intervals to shift up
-  const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
+  // const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
+  const randomPitchShift = 0; // All keys - C to B
+
   const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
 
   // Generate musical content
   const { chords, chordTime } = generateChords(key);
   const { chordsArpeggio } = generateChordsArpeggio(key);
-  const { melody, melodyTime } = generateMelody(chords, chordTime);
+  const { melody, melodyTime } = generateMelody(
+    chords,
+    chordTime,
+    timeSignature,
+  );
 
   // Create melody sequence
   const transposedMelody = transposeNotes(melody, randomPitchShift);
@@ -149,9 +157,11 @@ export const generateNewTrack = (transport) => {
   const randomKickName = getRandomFromArray(Object.keys(allKicks));
   createdKick = createKick(randomKickName);
 
-  const randomKickPatternName = getRandomFromArray(Object.keys(kickPatterns));
-  const selectedKickPattern = kickPatterns[randomKickPatternName];
-  const selectedKickPatternName = randomKickPatternName;
+  const randomKickPatternName = getRandomFromArray(
+    Object.keys(kickPatterns[timeSignature]),
+  );
+  const selectedKickPattern =
+    kickPatterns[timeSignature][randomKickPatternName];
 
   sequences.kick = createDrumSequence(
     'kick',
@@ -164,9 +174,11 @@ export const generateNewTrack = (transport) => {
   const randomSnareName = getRandomFromArray(Object.keys(allSnares));
   createdSnare = createSnare(randomSnareName);
 
-  const randomSnarePatternName = getRandomFromArray(Object.keys(snarePatterns));
-  const selectedSnarePattern = snarePatterns[randomSnarePatternName];
-  const selectedSnarePatternName = randomSnarePatternName;
+  const randomSnarePatternName = getRandomFromArray(
+    Object.keys(snarePatterns[timeSignature]),
+  );
+  const selectedSnarePattern =
+    snarePatterns[timeSignature][randomSnarePatternName];
 
   sequences.snare = createDrumSequence(
     'snare',
@@ -179,9 +191,11 @@ export const generateNewTrack = (transport) => {
   const randomHiHatName = getRandomFromArray(Object.keys(allHiHats));
   createdHiHat = createHiHat(randomHiHatName);
 
-  const randomHiHatPatternName = getRandomFromArray(Object.keys(hiHatPatterns));
-  const selectedHiHatPattern = hiHatPatterns[randomHiHatPatternName];
-  const selectedHiHatPatternName = randomHiHatPatternName;
+  const randomHiHatPatternName = getRandomFromArray(
+    Object.keys(hiHatPatterns[timeSignature]),
+  );
+  const selectedHiHatPattern =
+    hiHatPatterns[timeSignature][randomHiHatPatternName];
 
   sequences.hiHat = createDrumSequence(
     'hihat',
@@ -214,8 +228,9 @@ export const generateNewTrack = (transport) => {
     kick: randomKickName,
     snare: randomSnareName,
     hiHat: randomHiHatName,
-    kickPattern: selectedKickPatternName,
-    snarePattern: selectedSnarePatternName,
-    hiHatPattern: selectedHiHatPatternName,
+    kickPattern: randomKickPatternName,
+    snarePattern: randomSnarePatternName,
+    hiHatPattern: randomHiHatPatternName,
+    timeSignature,
   });
 };

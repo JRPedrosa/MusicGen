@@ -1,4 +1,4 @@
-import { settings } from './constants.js';
+import { allChords, settings } from './constants.js';
 // import { PROBABILITIES } from './state.js';
 import {
   getRandomFromArray,
@@ -15,7 +15,9 @@ const PROBABILITIES = {
 };
 
 const determineNextNote = (params) => {
-  const { lastNote, lastNoteWasOutOfChord, currentChord } = params;
+  const { lastNote, lastNoteWasOutOfChord, currentChord, currentChordSymbol } =
+    params;
+
   // const currentBeatInMeasure = beats[beats.length - 1]?.beat;
   /* const isStrongBeat =
     currentBeatInMeasure === 0 &&
@@ -25,7 +27,7 @@ const determineNextNote = (params) => {
 
   let chosenNote;
   // If the chord changed and lastNote was OUT but now is IN. Let the chord change resolve it
-  const lastNoteIsInTheCurrentChord = currentChord.filter(
+  /* const lastNoteIsInTheCurrentChord = currentChord.filter(
     (note) => note.charAt(0) === lastNote?.charAt(0),
   ).length;
   if (lastNote && lastNoteWasOutOfChord && lastNoteIsInTheCurrentChord) {
@@ -33,7 +35,7 @@ const determineNextNote = (params) => {
       note: lastNote,
       isOutOfChord: false,
     };
-  }
+  } */
 
   if (Math.random() < PROBABILITIES.REST && !lastNoteWasOutOfChord) {
     return {
@@ -42,31 +44,46 @@ const determineNextNote = (params) => {
     };
   }
 
+  const currentChordisFromMinorKey =
+    allChords.chordsFromMinorkey.includes(currentChordSymbol);
+
   // If last note was in, has xx% chance of choosing an out note
   const willChooseOutNote =
     !lastNoteWasOutOfChord &&
-    // !isStrongBeat &&
+    !currentChordisFromMinorKey &&
     Math.random() < PROBABILITIES.OUT_OF_CHORD;
 
-  const notesToUse = getInOutScaleNotes(
-    settings.scale,
+  let motherScaleToChooseFrom = settings.scale;
+  if (currentChordisFromMinorKey) {
+    /* notesToUse = notesToUse.map((note) => {
+        return note.startsWith('G') ? note.replace('G', 'G#') : note;
+      }); */
+
+    motherScaleToChooseFrom = motherScaleToChooseFrom.map((note) => {
+      return note.startsWith('G') ? note.replace('G', 'G#') : note;
+    });
+  }
+  let notesToUse = getInOutScaleNotes(
+    // settings.scale,
+    motherScaleToChooseFrom,
     currentChord,
     !willChooseOutNote,
   );
 
-  /* const allThirdsAvailable = notesToUse.filter(
-    (note) => note.charAt(0) === currentChord[1].charAt(0),
-  );
+  console.log('## currentChord', currentChord);
+  console.log('## notesToUse', notesToUse);
 
-  const notesToUseWithoutRoot = notesToUse.filter(
-    (note) => note.charAt(0) !== currentChord[0].charAt(0),
-  ); */
-
+  //Probably add lastChord to the scope so if last chord was from minor
+  //  and this one isn't we should use close and resolve
   const useClosestNote =
     lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE;
 
   if (lastNote && useClosestNote) {
-    chosenNote = getClosestAvailableNote(lastNote, notesToUse, settings.scale);
+    chosenNote = getClosestAvailableNote(
+      lastNote,
+      notesToUse,
+      motherScaleToChooseFrom,
+    );
   } else {
     // Jump around
     chosenNote = getRandomFromArray(notesToUse);
@@ -76,13 +93,17 @@ const determineNextNote = (params) => {
     (note) => note.charAt(0) === chosenNote.charAt(0),
   ).length;
 
+  console.log(
+    '## current note is out of chord: ',
+    !finalNoteIsInTheCurrentChord,
+  );
   return {
     note: chosenNote,
     isOutOfChord: !finalNoteIsInTheCurrentChord,
   };
 };
 
-export const generateMelody = (chords, chordTime) => {
+export const generateMelody = (chords, chordTime, timeSignature) => {
   const melody = [];
   let melodyTime = 0;
   let lastNoteWasOutOfChord = true;
@@ -94,15 +115,29 @@ export const generateMelody = (chords, chordTime) => {
     const currentChordIndex =
       Math.floor(melodyTime / Tone.Time('1n').toSeconds()) % chords.length;
     const currentChord = chords[currentChordIndex].notes;
-
+    const currentChordSymbol = chords[currentChordIndex].name;
+    console.log('/////////////////////////////////////////////////////////');
+    //Here the beat is where the next note will land
+    console.log('Beat for note to choose', beats[beats.length - 1]);
     const { note, isOutOfChord } = determineNextNote({
       beats,
       lastNote,
       lastNoteWasOutOfChord,
       currentChord,
+      currentChordSymbol,
     });
 
-    const duration = isOutOfChord
+    console.log('##note', note);
+    //If is out of chord or current chord is from minor, note is G and we are at the end of the measure
+    const noteShouldHaveShortDuration =
+      isOutOfChord ||
+      (note &&
+        allChords.chordsFromMinorkey.includes(currentChordSymbol) &&
+        note.charAt(0) === 'G' &&
+        beats[beats.length - 1].beat >= 2);
+
+    // const duration = isOutOfChord
+    const duration = noteShouldHaveShortDuration
       ? '8n'
       : settings.durations[
           Math.floor(Math.random() * settings.durations.length)
@@ -116,7 +151,7 @@ export const generateMelody = (chords, chordTime) => {
       duration,
     });
 
-    beats = calculateBeatsAndMeasure(melody);
+    beats = calculateBeatsAndMeasure(melody, timeSignature);
 
     melodyTime += Tone.Time(duration).toSeconds();
     lastNote = note;

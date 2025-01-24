@@ -52,6 +52,9 @@ const startOffline = () => {
   Tone.Offline(
     async (ctx) => {
       ctx.debug = true;
+      console.log(
+        '##WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
+      );
       generateNewTrack(ctx.transport);
       ctx.transport.start(0.2);
 
@@ -64,7 +67,7 @@ const startOffline = () => {
     },
     OFFLINE_CONFIG.maxDuration,
     OFFLINE_CONFIG.channels,
-    sampleRate,
+    20000,
   )
     .then((buffer) => {
       playBuffer(buffer); // Play the generated buffer
