@@ -6,7 +6,7 @@ import {
   getInOutScaleNotes,
   calculateBeatsAndMeasure,
   getClosestAvailableNote,
-} from './utils.js';
+} from './utils/utils.js';
 
 const PROBABILITIES = {
   OUT_OF_CHORD: 0.7,
@@ -15,8 +15,15 @@ const PROBABILITIES = {
 };
 
 const determineNextNote = (params) => {
-  const { lastNote, lastNoteWasOutOfChord, currentChord, currentChordSymbol } =
-    params;
+  const {
+    beatWhereNoteWillLand,
+    lastNote,
+    lastNoteWasOutOfChord,
+    currentChord,
+    currentChordSymbol,
+    lastChord,
+    chordChanged,
+  } = params;
 
   // const currentBeatInMeasure = beats[beats.length - 1]?.beat;
   /* const isStrongBeat =
@@ -26,21 +33,15 @@ const determineNextNote = (params) => {
     currentBeatInMeasure === 3; */
 
   let chosenNote;
-  // If the chord changed and lastNote was OUT but now is IN. Let the chord change resolve it
-  /* const lastNoteIsInTheCurrentChord = currentChord.filter(
-    (note) => note.charAt(0) === lastNote?.charAt(0),
-  ).length;
-  if (lastNote && lastNoteWasOutOfChord && lastNoteIsInTheCurrentChord) {
-    return {
-      note: lastNote,
-      isOutOfChord: false,
-    };
-  } */
 
   if (Math.random() < PROBABILITIES.REST && !lastNoteWasOutOfChord) {
     return {
       note: undefined,
       isOutOfChord: false, //Considering rests as IN chord. Only happens after an IN note
+      duration:
+        settings.durations[
+          Math.floor(Math.random() * settings.durations.length)
+        ],
     };
   }
 
@@ -70,9 +71,6 @@ const determineNextNote = (params) => {
     !willChooseOutNote,
   );
 
-  console.log('## currentChord', currentChord);
-  console.log('## notesToUse', notesToUse);
-
   //Probably add lastChord to the scope so if last chord was from minor
   //  and this one isn't we should use close and resolve
   const useClosestNote =
@@ -93,57 +91,65 @@ const determineNextNote = (params) => {
     (note) => note.charAt(0) === chosenNote.charAt(0),
   ).length;
 
-  console.log(
-    '## current note is out of chord: ',
-    !finalNoteIsInTheCurrentChord,
-  );
+  //If is out of chord or current chord is from minor, note is G and we are at the end of the measure so it doesn't carry over to the next diatonic chord
+  const noteShouldHaveShortDuration =
+    !finalNoteIsInTheCurrentChord ||
+    (chosenNote &&
+      allChords.chordsFromMinorkey.includes(currentChordSymbol) &&
+      chosenNote.charAt(0) === 'G' &&
+      beatWhereNoteWillLand.beat >= 2);
+
+  // const duration = isOutOfChord
+  const duration = noteShouldHaveShortDuration
+    ? '8n'
+    : settings.durations[Math.floor(Math.random() * settings.durations.length)];
+
   return {
     note: chosenNote,
     isOutOfChord: !finalNoteIsInTheCurrentChord,
+    duration,
   };
 };
 
 export const generateMelody = (chords, chordTime, timeSignature) => {
+  const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
   const melody = [];
+  let beats = [];
   let melodyTime = 0;
   let lastNoteWasOutOfChord = true;
   let lastNote;
-  let beats = [];
-  const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
+  let lastChord;
+  let lastChordSymbol;
 
   while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
+    /* const currentChordIndex =
+      Math.floor(melodyTime / Tone.Time('1n').toSeconds()) % chords.length; */
+    const beatWhereNoteWillLand = beats[beats.length - 1] || { measure: 1 }; //For the first pass
     const currentChordIndex =
-      Math.floor(melodyTime / Tone.Time('1n').toSeconds()) % chords.length;
+      (beatWhereNoteWillLand?.measure - 1) % chords.length;
     const currentChord = chords[currentChordIndex].notes;
     const currentChordSymbol = chords[currentChordIndex].name;
-    console.log('/////////////////////////////////////////////////////////');
-    //Here the beat is where the next note will land
-    console.log('Beat for note to choose', beats[beats.length - 1]);
-    const { note, isOutOfChord } = determineNextNote({
-      beats,
+    const chordChanged = currentChordSymbol !== lastChordSymbol;
+
+    console.warn(currentChordSymbol);
+    console.log(beatWhereNoteWillLand);
+    const { note, isOutOfChord, duration } = determineNextNote({
+      beatWhereNoteWillLand,
       lastNote,
       lastNoteWasOutOfChord,
       currentChord,
       currentChordSymbol,
+      lastChord,
+      chordChanged,
     });
 
-    console.log('##note', note);
-    //If is out of chord or current chord is from minor, note is G and we are at the end of the measure
-    const noteShouldHaveShortDuration =
-      isOutOfChord ||
-      (note &&
-        allChords.chordsFromMinorkey.includes(currentChordSymbol) &&
-        note.charAt(0) === 'G' &&
-        beats[beats.length - 1].beat >= 2);
-
-    // const duration = isOutOfChord
-    const duration = noteShouldHaveShortDuration
-      ? '8n'
-      : settings.durations[
-          Math.floor(Math.random() * settings.durations.length)
-        ];
-
     const noteChordRelation = getNoteChordRelation(currentChord, note);
+    console.log(
+      `${note} - ${isOutOfChord ? 'OUT - ' : 'IN - '}`,
+      noteChordRelation,
+      ' - ',
+      duration,
+    );
 
     melody.push({
       time: melodyTime,
@@ -152,11 +158,14 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
     });
 
     beats = calculateBeatsAndMeasure(melody, timeSignature);
-
     melodyTime += Tone.Time(duration).toSeconds();
     lastNote = note;
     lastNoteWasOutOfChord = isOutOfChord;
+    lastChord = currentChord;
+    lastChordSymbol = currentChordSymbol;
   }
+
+  console.log('chords', chords, 'melody', melody);
 
   return { melody, melodyTime };
 };

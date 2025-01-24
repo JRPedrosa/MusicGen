@@ -7,14 +7,15 @@ export const allChords = {
   V: ['G2', 'D3', 'G3', 'B3', 'D4'],
   vi: ['A2', 'E3', 'A3', 'C4', 'G4'], */
 
-  // Fuller triads - OUT_OF_CHORD to 0.8/0.7
-  /* I: ['C2', 'G2', 'C3', 'E3', 'G3'],
-  ii: ['D2', 'A2', 'D3', 'F3', 'A3'],
-  iii: ['E2', 'B2', 'E3', 'G3', 'B3'],
-  IV: ['F2', 'C3', 'F3', 'A3', 'C4'],
-  V: ['G2', 'D3', 'G3', 'B3', 'D4'],
-  vi: ['A2', 'E3', 'A3', 'C4', 'E4'], */
+  // Close triads - OUT_OF_CHORD to 0.8
+  /* I: ['C3', 'E3', 'G3'],
+  ii: ['D3', 'F3', 'A3'],
+  iii: ['E3', 'G3', 'B3'],
+  IV: ['F3', 'A3', 'C4'],
+  V: ['G3', 'B3', 'D4'],
+  vi: ['A3', 'C4', 'E4'], */
 
+  // Fuller triads - OUT_OF_CHORD to 0.8/0.7
   I: ['C2', 'G2', 'C3', 'E3', 'G3'],
   ii: ['D2', 'A2', 'D3', 'F3', 'A3'],
   iii: ['E2', 'B2', 'E3', 'G3', 'B3'],
@@ -23,20 +24,11 @@ export const allChords = {
   vi: ['A2', 'E3', 'A3', 'C4', 'E4'],
 
   //Chords borrowed from minor key - always put in the array below so melodyGen.js can adapt
+  chordsFromMinorkey: ['III', 'III7', 'vii7', 'viidim'],
   III: ['E2', 'B2', 'E3', 'G#3', 'B3'],
   // III7: ['G#2', 'B2', 'E3', 'G#3', 'D4'],
-
   // vii7: ['B1', 'F2', 'A2', 'D3', 'F3'], //one octave down
   // viidim: ['G#2', 'F3', 'B3', 'D4', 'F4'],
-  chordsFromMinorkey: ['III', 'III7', 'vii7', 'viidim'],
-
-  // Close triads - OUT_OF_CHORD to 0.8
-  /* I: ['C3', 'E3', 'G3'],
-  ii: ['D3', 'F3', 'A3'],
-  iii: ['E3', 'G3', 'B3'],
-  IV: ['F3', 'A3', 'C4'],
-  V: ['G3', 'B3', 'D4'],
-  vi: ['A3', 'C4', 'E4'], */
 };
 
 export const commonProgressions = [
@@ -56,7 +48,7 @@ export const commonProgressions = [
   ['vi', 'IV', 'I', 'III'],
   ['I', 'III', 'IV', 'V'],
 
-  ['vi', 'III', 'vi', 'III'],
+  // ['vi', 'III', 'vi', 'III'],
 ];
 
 export const settings = {
@@ -179,4 +171,31 @@ export const hiHatPatterns = {
       { time: '0:2:2', note: 'G2' },
     ],
   },
+};
+
+export const OFFLINE_CONFIG = {
+  maxDuration: 20,
+  mobileSampleRate: 22050,
+  sampleRate: 48000,
+  channels: 2,
+};
+
+export const elements = {
+  warning: document.querySelector('.warning'),
+  offline: document.getElementById('offlineGen'),
+  loading: document.getElementById('loading'),
+  loadingMessage: document.getElementById('loadingMessage'),
+  outOfChordSlider: document.getElementById('outOfChord'),
+  closestNoteSlider: document.getElementById('closestNote'),
+  restSlider: document.getElementById('rest'),
+  outOfChordValue: document.getElementById('outOfChordValue'),
+  closestNoteValue: document.getElementById('closestNoteValue'),
+  restValue: document.getElementById('restValue'),
+  timeToGenerate: document.getElementById('timeToGenerate'),
+  audioDiv: document.querySelector('.audioDiv'),
+  tempo: document.getElementById('tempo'),
+  timeSignature: document.getElementById('timeSignature'),
+  key: document.getElementById('key'),
+  melodySynth: document.getElementById('melodySynth'),
+  chords: document.getElementById('chords'),
 };

@@ -1,12 +1,15 @@
+import { kickPatterns, snarePatterns, hiHatPatterns } from './constants.js';
 import {
   getRandomNumBetween,
   getRandomFromArray,
   transposeNotes,
   appendTrackInfo,
-} from './utils.js';
-import { kickPatterns, snarePatterns, hiHatPatterns } from './constants.js';
+  createDrumSequence,
+  initializeSequence,
+} from './utils/utils.js';
 import { generateMelody } from './melodyGen.js';
-import { generateChords } from './chordGen.js';
+import { generateChords } from './chords/chordGen.js';
+import { generateChordsArpeggio } from './chords/chordGenArpeggio.js';
 import {
   allMelodySynths,
   allChordSynths,
@@ -18,8 +21,7 @@ import {
   allKicks,
   allSnares,
   allHiHats,
-} from './synthSetup.js';
-import { generateChordsArpeggio } from './chordGenArpeggio.js';
+} from './utils/synthSetup.js';
 
 const sequences = {
   melody: null,
@@ -34,31 +36,14 @@ const TEMPO_RANGE = {
   MAX: 140,
 };
 
+const arpeggiatedChords = false; //To come
+
 let createdMelodySynth;
 let createdChordSynth;
 let createdKick;
 let createdSnare;
 let createdHiHat;
 let reverb;
-
-const createDrumSequence = (type, instrument, pattern, noteLength) => {
-  if (type === 'snare') {
-    return new Tone.Part((time) => {
-      instrument.triggerAttackRelease(noteLength, time);
-    }, pattern).start(0);
-  }
-
-  return new Tone.Part((time, event) => {
-    instrument.triggerAttackRelease(event?.note, noteLength, time);
-  }, pattern).start(0);
-};
-
-const initializeSequence = (sequence, loopEnd) => {
-  if (sequence) {
-    sequence.loop = true;
-    sequence.loopEnd = loopEnd;
-  }
-};
 
 const cleanUpAudio = () => {
   Object.values(sequences).forEach((sequence) => {
@@ -85,24 +70,20 @@ export const generateNewTrack = (transport) => {
   //Clean-up
   cleanUpAudio();
 
-  // Set BPM and time signature
+  // Define time signature and key
+  const timeSignature = getRandomFromArray([3, 4, 4]); //Twice as likely to be 4/4
+  const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
+  // const randomPitchShift = 0;
+
+  // Set BPM, timesignature and key
+  const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
   transport.bpm.value =
     Math.floor(Math.random() * (TEMPO_RANGE.MAX - TEMPO_RANGE.MIN)) +
     TEMPO_RANGE.MIN;
-  // const timeSignature = getRandomFromArray([3, 4, 4]); //Twice as likely to be 4/4
-  const timeSignature = 3; //Twice as likely to be 4/4
-
   transport.timeSignature = timeSignature;
-  // transport.swing = 0;
 
-  // Choose random key - From C (min, max) intervals to shift up
-  // const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
-  const randomPitchShift = 0; // All keys - C to B
-
-  const key = transposeNotes('C4', randomPitchShift).slice(0, -1);
-
-  // Generate musical content
-  const { chords, chordTime } = generateChords(key);
+  // -------- Generate musical content --------
+  const { chords, chordTime } = generateChords(key); //We need block chord for the melody, so even with arpeggio this has to stay (?)
   const { chordsArpeggio } = generateChordsArpeggio(key);
   const { melody, melodyTime } = generateMelody(
     chords,
@@ -110,7 +91,7 @@ export const generateNewTrack = (transport) => {
     timeSignature,
   );
 
-  // Create melody sequence
+  // -------- Create melody sequence --------
   const transposedMelody = transposeNotes(melody, randomPitchShift);
   const randomMelodySynthName = getRandomFromArray(
     Object.keys(allMelodySynths),
@@ -126,8 +107,11 @@ export const generateNewTrack = (transport) => {
     );
   }, transposedMelody).start(0);
 
-  // Create chord sequence
-  const transposedChords = transposeNotes(chords, randomPitchShift);
+  // -------- Create chord sequence --------
+  const transposedChords = transposeNotes(
+    arpeggiatedChords ? chordsArpeggio : chords,
+    randomPitchShift,
+  );
   const randomChordSynthName = getRandomFromArray(Object.keys(allChordSynths));
   createdChordSynth = createChordSynth(randomChordSynthName);
   sequences.chord = new Tone.Part((time, event) => {
@@ -139,20 +123,7 @@ export const generateNewTrack = (transport) => {
     );
   }, transposedChords).start(0);
 
-  // Future Arpeggiated chords  !!!!!
-  /* const transposedChords = transposeNotes(chordsArpeggio, randomPitchShift);
-  const randomChordSynthName = getRandomFromArray(Object.keys(allChordSynths));
-  createdChordSynth = createChordSynth(randomChordSynthName);
-  sequences.chord = new Tone.Part((time, event) => {
-    createdChordSynth.triggerAttackRelease(
-      event.notes,
-      event.duration,
-      time,
-      0.3,
-    );
-  }, transposedChords).start(0); */
-
-  // --- Create drum sequences ---
+  // -------- Create drum sequences --------
   //Kick
   const randomKickName = getRandomFromArray(Object.keys(allKicks));
   createdKick = createKick(randomKickName);

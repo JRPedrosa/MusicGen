@@ -1,3 +1,5 @@
+import { elements } from '../constants.js';
+
 export const isMobileDevice = () => {
   return /Mobi|Android/i.test(navigator.userAgent);
 };
@@ -56,9 +58,7 @@ export const getClosestAvailableNote = (
     targetIndex = motherScaleToChooseFrom.indexOf(targetNote.replace('#', ''));
     if (!targetIndex) {
       //Stupid fallback
-      console.log(
-        ' |||| UNKNOWN BUG ||||  DO NOT IGNORE ||||  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& see below',
-      );
+      console.error(' |||| UNKNOWN BUG ||||  DO NOT IGNORE |||| see below');
       console.log(
         'targetNote',
         targetNote,
@@ -96,8 +96,8 @@ export const getClosestAvailableNote = (
 };
 
 export const getNoteChordRelation = (chord, singleNote) => {
-  if (!singleNote) return 'pause';
-  const extractNote = (note) => note.replace(/\d/g, '');
+  if (!singleNote) return 'PAUSE';
+  const extractNote = (note) => note.replace(/\d/g, '').charAt(0); //Removes numbers, then chooses only the letter
 
   const baseNote = extractNote(chord[0]);
   const noteOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
@@ -146,25 +146,12 @@ export const appendTrackInfo = ({
   melodySynth,
   chords,
   timeSignature,
-  /*  kick,
-  snare,
-  hiHat,
-  kickPattern,
-  snarePattern,
-  hiHatPattern, */
 }) => {
-  document.getElementById('tempo').textContent = `BPM: ${tempo}`;
-  document.getElementById(
-    'timeSignature',
-  ).textContent = `Time: ${timeSignature}/4`;
-  document.getElementById('key').textContent = `Key: ${key}`;
-  document.getElementById('melodySynth').textContent = `Synth: ${melodySynth}`;
-  document.getElementById('chords').textContent = `Chords: ${chords.map(
-    (c) => c.name,
-  )}`;
-  /* document.getElementById('kick').textContent = `${kick} - ${kickPattern}`;
-  document.getElementById('snare').textContent = `${snare} - ${snarePattern}`;
-  document.getElementById('hiHat').textContent = `${hiHat} - ${hiHatPattern}`; */
+  elements.tempo.textContent = `BPM: ${tempo}`;
+  elements.timeSignature.textContent = `Time: ${timeSignature}/4`;
+  elements.key.textContent = `Key: ${key}`;
+  elements.melodySynth.textContent = `Synth: ${melodySynth}`;
+  elements.chords.textContent = `Chords: ${chords.map((c) => c.name)}`;
 };
 
 export const calculateRecordingTime = (bpm, numberOfMeasures) => {
@@ -181,4 +168,23 @@ export const calculateRecordingTime = (bpm, numberOfMeasures) => {
   const totalTimeInSeconds = timePerMeasure * numberOfMeasures;
 
   return totalTimeInSeconds;
+};
+
+export const createDrumSequence = (type, instrument, pattern, noteLength) => {
+  if (type === 'snare') {
+    return new Tone.Part((time) => {
+      instrument.triggerAttackRelease(noteLength, time);
+    }, pattern).start(0);
+  }
+
+  return new Tone.Part((time, event) => {
+    instrument.triggerAttackRelease(event?.note, noteLength, time);
+  }, pattern).start(0);
+};
+
+export const initializeSequence = (sequence, loopEnd) => {
+  if (sequence) {
+    sequence.loop = true;
+    sequence.loopEnd = loopEnd;
+  }
 };

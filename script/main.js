@@ -1,21 +1,13 @@
 import { generateNewTrack } from './trackGenerator.js';
-import { bufferToWav } from './audioUtils.js';
-import { isMobileDevice } from './utils.js';
-import { elements } from './state.js';
+import { bufferToWav } from './utils/audioUtils.js';
+import { isMobileDevice } from './utils/utils.js';
+import { OFFLINE_CONFIG, elements } from './constants.js';
 
 const isDev =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1';
 
 let isGenerating = false;
-
-const OFFLINE_CONFIG = {
-  maxDuration: 20,
-  mobileSampleRate: 22050,
-  sampleRate: 48000,
-  channels: 2,
-};
-
 let intervalId = null;
 
 const startOffline = () => {
@@ -29,17 +21,14 @@ const startOffline = () => {
   elements.loading.classList.add('loading-animation');
 
   // Remove the old audio element if it exists
-  const audioDiv = document.querySelector('.audioDiv');
-  const existingWrapper = audioDiv.querySelector('div');
+  const existingWrapper = elements.audioDiv.querySelector('div');
   if (existingWrapper) {
     const oldAudioElement = existingWrapper.querySelector('audio');
     if (oldAudioElement) {
       const oldAudioUrl = oldAudioElement.src;
-      // Revoke the old audio URL
       URL.revokeObjectURL(oldAudioUrl);
     }
-    // Remove the wrapper div containing the old audio element
-    audioDiv.removeChild(existingWrapper);
+    elements.audioDiv.removeChild(existingWrapper);
   }
 
   const sampleRate = isDev
@@ -49,14 +38,12 @@ const startOffline = () => {
     : OFFLINE_CONFIG.sampleRate;
 
   const time = Date.now();
+
   Tone.Offline(
     async (ctx) => {
       ctx.debug = true;
-      console.log(
-        '##WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
-      );
       generateNewTrack(ctx.transport);
-      ctx.transport.start(0.2);
+      ctx.transport.start();
 
       intervalId = setInterval(() => {
         const progress =
@@ -67,7 +54,7 @@ const startOffline = () => {
     },
     OFFLINE_CONFIG.maxDuration,
     OFFLINE_CONFIG.channels,
-    20000,
+    sampleRate,
   )
     .then((buffer) => {
       playBuffer(buffer); // Play the generated buffer
@@ -90,14 +77,13 @@ const playBuffer = (buffer) => {
   const audioUrl = URL.createObjectURL(audioBlob);
 
   // Create and append the new audio element
-  const audioDiv = document.querySelector('.audioDiv');
   const audioElement = new Audio(audioUrl);
   audioElement.controls = true;
   // audioElement.loop = true;
 
   const wrapperDiv = document.createElement('div');
   wrapperDiv.appendChild(audioElement);
-  audioDiv.appendChild(wrapperDiv);
+  elements.audioDiv.appendChild(wrapperDiv);
 
   // Reset UI and state
   isGenerating = false;
@@ -112,36 +98,25 @@ const updateProgress = (progress, intervalId) => {
   if (Math.round(progress) > 85) {
     clearInterval(intervalId);
     elements.loading.textContent = ``;
-
     elements.loadingMessage.textContent = `Converting to WAV..`;
 
-    timeoutIds.push(
-      setTimeout(() => {
-        if (isGenerating) {
-          elements.loadingMessage.textContent = `Normalizing the buffer..`;
-        }
-      }, 4000),
-      setTimeout(() => {
-        if (isGenerating) {
-          elements.loadingMessage.textContent = `Finishing processing..`;
-        }
-      }, 10000),
-      setTimeout(() => {
-        if (isGenerating) {
-          elements.loadingMessage.textContent = `Almost there!`;
-        }
-      }, 15000),
-      setTimeout(() => {
-        if (isGenerating) {
-          elements.loadingMessage.textContent = `Adding a cherry on top`;
-        }
-      }, 20000),
-      setTimeout(() => {
-        if (isGenerating) {
-          elements.loadingMessage.textContent = `I swear this is going to work`;
-        }
-      }, 27000),
-    );
+    const messages = [
+      { text: `Normalizing the buffer..`, delay: 4000 },
+      { text: `Finishing processing..`, delay: 10000 },
+      { text: `Almost there!`, delay: 15000 },
+      { text: `Adding a cherry on top`, delay: 20000 },
+      { text: `I swear this is going to work`, delay: 27000 },
+    ];
+
+    messages.forEach(({ text, delay }) => {
+      timeoutIds.push(
+        setTimeout(() => {
+          if (isGenerating) {
+            elements.loadingMessage.textContent = text;
+          }
+        }, delay),
+      );
+    });
   }
 };
 
@@ -150,8 +125,7 @@ const clearAllTimeouts = () => {
   timeoutIds = []; // Reset the array
 };
 
-// Event Listeners
-const setupEventListeners = () => {
+const setupEventListenersAndInit = () => {
   elements.offline.addEventListener('click', startOffline);
 
   /* elements.outOfChordSlider.addEventListener('input', (event) => {
@@ -170,7 +144,7 @@ const setupEventListeners = () => {
   });
  */
   window.addEventListener('beforeunload', async () => {
-    Tone.context.close(); // Only close context when unloading page
+    Tone.context.close();
   });
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -181,9 +155,9 @@ const setupEventListeners = () => {
         return;
       }
 
-      await Tone.start(); // Initialize Tone.js
+      await Tone.start();
     };
   });
 };
 
-setupEventListeners();
+setupEventListenersAndInit();
