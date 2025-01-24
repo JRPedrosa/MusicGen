@@ -3,6 +3,10 @@ import { bufferToWav } from './audioUtils.js';
 import { isMobileDevice } from './utils.js';
 import { elements } from './state.js';
 
+const isDev =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1';
+
 let isGenerating = false;
 
 const OFFLINE_CONFIG = {
@@ -18,14 +22,33 @@ const startOffline = () => {
   if (isGenerating) {
     return;
   }
+  console.clear();
   isGenerating = true;
   elements.loading.textContent = ``;
   elements.offline.style.backgroundColor = 'grey';
   elements.loading.classList.add('loading-animation');
 
-  const sampleRate = isMobileDevice()
+  // Remove the old audio element if it exists
+  const audioDiv = document.querySelector('.audioDiv');
+  const existingWrapper = audioDiv.querySelector('div');
+  if (existingWrapper) {
+    const oldAudioElement = existingWrapper.querySelector('audio');
+    if (oldAudioElement) {
+      const oldAudioUrl = oldAudioElement.src;
+      // Revoke the old audio URL
+      URL.revokeObjectURL(oldAudioUrl);
+    }
+    // Remove the wrapper div containing the old audio element
+    audioDiv.removeChild(existingWrapper);
+  }
+
+  const sampleRate = isDev
+    ? 20000
+    : isMobileDevice()
     ? OFFLINE_CONFIG.mobileSampleRate
     : OFFLINE_CONFIG.sampleRate;
+
+  console.log('## isDev', isDev, 'sampleRate', sampleRate);
 
   const time = Date.now();
   Tone.Offline(
@@ -67,18 +90,21 @@ const playBuffer = (buffer) => {
   const audioContext = Tone.context.rawContext;
   const wavData = bufferToWav(buffer, audioContext);
 
+  // Create a new audio blob and URL
   const audioBlob = new Blob([wavData], { type: 'audio/wav' });
   const audioUrl = URL.createObjectURL(audioBlob);
+
+  // Create and append the new audio element
+  const audioDiv = document.querySelector('.audioDiv');
   const audioElement = new Audio(audioUrl);
   audioElement.controls = true;
   // audioElement.loop = true;
 
-  const audioDiv = document.querySelector('.audioDiv');
   const wrapperDiv = document.createElement('div');
-
   wrapperDiv.appendChild(audioElement);
   audioDiv.appendChild(wrapperDiv);
 
+  // Reset UI and state
   isGenerating = false;
   clearAllTimeouts();
   elements.offline.style.backgroundColor = '#6200ea';
