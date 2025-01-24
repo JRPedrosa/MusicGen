@@ -13,7 +13,6 @@ export const generateChordsArpeggio = () => {
   for (let i = 0; i < selectedProgression.length; i++) {
     const chordSymbol = selectedProgression[i];
     const notes = allChords[chordSymbol];
-    console.log('||| notes', notes);
 
     chordsArpeggio.push({
       time: chordTimeArpeggio, // Offset after the first two notes
@@ -35,9 +34,6 @@ export const generateChordsArpeggio = () => {
     });
 
     chordTimeArpeggio += Tone.Time('1n').toSeconds();
-
-    console.log('||| chordsArpeggio', chordsArpeggio);
-    console.log('||| chordTimeArpeggio', chordTimeArpeggio);
   }
 
   return { chordsArpeggio, chordTimeArpeggio };
