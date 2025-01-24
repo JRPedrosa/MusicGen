@@ -1,4 +1,4 @@
-import { commonProgressions, allChords } from './constants.js';
+import { commonProgressions, allChords } from '../constants.js';
 
 export const generateChordsArpeggio = () => {
   const selectedProgression = [

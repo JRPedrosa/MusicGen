@@ -1,3 +1,5 @@
+import { elements } from '../constants.js';
+
 export const isMobileDevice = () => {
   return /Mobi|Android/i.test(navigator.userAgent);
 };
@@ -43,19 +45,39 @@ export const getInOutScaleNotes = (scale, chord, chordTones = true) => {
   return scale.filter((note) => chordTones === isNoteInChord(note, chord));
 };
 
-export const getClosestAvailableNote = (targetNote, array1, array2) => {
+export const getClosestAvailableNote = (
+  targetNote,
+  notesToUse,
+  motherScaleToChooseFrom,
+) => {
   // Find the index of the target note in array2
-  const targetIndex = array2.indexOf(targetNote);
+  let targetIndex = motherScaleToChooseFrom.indexOf(targetNote);
+
   if (targetIndex === -1) {
-    throw new Error('Target note not found in the second array');
+    //Edge case where lastNote was a G# and the chord changed so it isn't in the diatonic scale
+    targetIndex = motherScaleToChooseFrom.indexOf(targetNote.replace('#', ''));
+    if (!targetIndex) {
+      //Stupid fallback
+      console.error(' |||| UNKNOWN BUG ||||  DO NOT IGNORE |||| see below');
+      console.log(
+        'targetNote',
+        targetNote,
+        'notesToUse',
+        notesToUse,
+        'motherScaleToChooseFrom',
+        motherScaleToChooseFrom,
+      );
+
+      return getRandomFromArray(notesToUse);
+    }
   }
 
   // Helper function to find the closest note in a given direction
   const findInDirection = (startIndex, direction) => {
     let index = startIndex + direction; // Move up (1) or down (-1)
-    while (index >= 0 && index < array2.length) {
-      if (array1.includes(array2[index])) {
-        return array2[index];
+    while (index >= 0 && index < motherScaleToChooseFrom.length) {
+      if (notesToUse.includes(motherScaleToChooseFrom[index])) {
+        return motherScaleToChooseFrom[index];
       }
       index += direction;
     }
@@ -74,8 +96,8 @@ export const getClosestAvailableNote = (targetNote, array1, array2) => {
 };
 
 export const getNoteChordRelation = (chord, singleNote) => {
-  if (!singleNote) return 'pause';
-  const extractNote = (note) => note.replace(/\d/g, '');
+  if (!singleNote) return 'PAUSE';
+  const extractNote = (note) => note.replace(/\d/g, '').charAt(0); //Removes numbers, then chooses only the letter
 
   const baseNote = extractNote(chord[0]);
   const noteOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
@@ -92,9 +114,8 @@ export const getNoteChordRelation = (chord, singleNote) => {
   return index !== -1 ? index + 1 : -1;
 };
 
-export const calculateBeatsAndMeasure = (notes) => {
+export const calculateBeatsAndMeasure = (notes, timeSignature) => {
   const beats = [];
-  const timeSignature = 4;
   const beatDurationMap = {
     '4n': 1,
     '2n': 2,
@@ -124,25 +145,17 @@ export const appendTrackInfo = ({
   tempo,
   melodySynth,
   chords,
-  /*  kick,
-  snare,
-  hiHat,
-  kickPattern,
-  snarePattern,
-  hiHatPattern, */
+  timeSignature,
 }) => {
-  document.getElementById('tempo').textContent = `BPM: ${tempo}`;
-  document.getElementById('key').textContent = `Key: ${key}`;
-  document.getElementById('melodySynth').textContent = `Synth: ${melodySynth}`;
-  document.getElementById('chords').textContent = `Chords: ${chords.map(
-    (c) => c.name,
-  )}`;
-  /* document.getElementById('kick').textContent = `${kick} - ${kickPattern}`;
-  document.getElementById('snare').textContent = `${snare} - ${snarePattern}`;
-  document.getElementById('hiHat').textContent = `${hiHat} - ${hiHatPattern}`; */
+  elements.tempo.textContent = `BPM: ${tempo}`;
+  elements.timeSignature.textContent = `Time: ${timeSignature}/4`;
+  elements.key.textContent = `Key: ${key}`;
+  elements.melodySynth.textContent = `Synth: ${melodySynth}`;
+  elements.chords.textContent = `Chords: ${chords.map((c) => c.name)}`;
 };
 
 export const calculateRecordingTime = (bpm, numberOfMeasures) => {
+  //NOT USED FOR NOW
   const beatsPerMeasure = 4; // Assuming 4/4 time signature
 
   // Time per beat in seconds
@@ -155,4 +168,23 @@ export const calculateRecordingTime = (bpm, numberOfMeasures) => {
   const totalTimeInSeconds = timePerMeasure * numberOfMeasures;
 
   return totalTimeInSeconds;
+};
+
+export const createDrumSequence = (type, instrument, pattern, noteLength) => {
+  if (type === 'snare') {
+    return new Tone.Part((time) => {
+      instrument.triggerAttackRelease(noteLength, time);
+    }, pattern).start(0);
+  }
+
+  return new Tone.Part((time, event) => {
+    instrument.triggerAttackRelease(event?.note, noteLength, time);
+  }, pattern).start(0);
+};
+
+export const initializeSequence = (sequence, loopEnd) => {
+  if (sequence) {
+    sequence.loop = true;
+    sequence.loopEnd = loopEnd;
+  }
 };
