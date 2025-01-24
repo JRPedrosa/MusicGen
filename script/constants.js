@@ -38,7 +38,6 @@ export const commonProgressions = [
   ['vi', 'IV', 'V', 'iii'],
   ['vi', 'ii', 'V', 'iii'],
   ['ii', 'V', 'I', 'vi'],
-  ['ii', 'IV', 'I', 'V'],
   ['iii', 'IV', 'vi', 'V'],
   ['IV', 'V', 'vi', 'iii'],
   ['V', 'IV', 'I', 'IV'],

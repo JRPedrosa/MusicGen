@@ -7,7 +7,7 @@ import {
   createDrumSequence,
   initializeSequence,
 } from './utils/utils.js';
-import { generateMelody } from './melodyGen.js';
+import { generateMelody } from './melody/melodyGen.js';
 import { generateChords } from './chords/chordGen.js';
 import { generateChordsArpeggio } from './chords/chordGenArpeggio.js';
 import {
