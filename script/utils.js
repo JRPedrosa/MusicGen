@@ -44,7 +44,6 @@ export const getInOutScaleNotes = (scale, chord, chordTones = true) => {
 };
 
 export const getClosestAvailableNote = (targetNote, array1, array2) => {
-  console.log('## lastNote:', targetNote, 'notesToUse:', array1);
   // Find the index of the target note in array2
   const targetIndex = array2.indexOf(targetNote);
   if (targetIndex === -1) {

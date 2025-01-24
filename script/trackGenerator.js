@@ -31,7 +31,7 @@ const sequences = {
 
 const TEMPO_RANGE = {
   MIN: 80,
-  MAX: 150,
+  MAX: 140,
 };
 
 let createdMelodySynth;
@@ -157,7 +157,7 @@ export const generateNewTrack = (transport) => {
     'kick',
     createdKick,
     selectedKickPattern,
-    '8n',
+    '4n',
   );
 
   //Snare

@@ -12,7 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 130px;
+  height: 110px;
 }
 
 .audioDiv {
@@ -49,7 +49,7 @@ body {
 #loading {
   align-content: center;
   height: 5px;
-  margin: 10px 0;
+  margin: 5px 0;
 }
 
 #loadingMessage {

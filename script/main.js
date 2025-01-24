@@ -48,18 +48,11 @@ const startOffline = () => {
     ? OFFLINE_CONFIG.mobileSampleRate
     : OFFLINE_CONFIG.sampleRate;
 
-  console.log('## isDev', isDev, 'sampleRate', sampleRate);
-
   const time = Date.now();
   Tone.Offline(
     async (ctx) => {
       ctx.debug = true;
       generateNewTrack(ctx.transport);
-      console.log(ctx);
-      /* Tone.Transport.addEventListener('stop', () => {
-        console.log('## Transport has stopped!');
-        // Add your code to handle the "stop" event here
-      }); */
       ctx.transport.start(0.2);
 
       intervalId = setInterval(() => {
@@ -75,7 +68,6 @@ const startOffline = () => {
   )
     .then((buffer) => {
       playBuffer(buffer); // Play the generated buffer
-      console.log('timeToGenerate: ', ((Date.now() - time) / 1000).toFixed(1));
       elements.loadingMessage.textContent = `Generated in: ${(
         (Date.now() - time) /
         1000
@@ -186,7 +178,6 @@ const setupEventListeners = () => {
         return;
       }
 
-      console.log('Tone.js is loaded');
       await Tone.start(); // Initialize Tone.js
     };
   });

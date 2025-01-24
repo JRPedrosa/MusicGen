@@ -16,7 +16,6 @@ const PROBABILITIES = {
 
 const determineNextNote = (params) => {
   const { lastNote, lastNoteWasOutOfChord, currentChord } = params;
-  console.log('/////////////////////////////////////////////////////////');
   // const currentBeatInMeasure = beats[beats.length - 1]?.beat;
   /* const isStrongBeat =
     currentBeatInMeasure === 0 &&
@@ -30,7 +29,6 @@ const determineNextNote = (params) => {
     (note) => note.charAt(0) === lastNote?.charAt(0),
   ).length;
   if (lastNote && lastNoteWasOutOfChord && lastNoteIsInTheCurrentChord) {
-    console.log('## keeping Old note');
     return {
       note: lastNote,
       isOutOfChord: false,
@@ -64,7 +62,6 @@ const determineNextNote = (params) => {
     (note) => note.charAt(0) !== currentChord[0].charAt(0),
   ); */
 
-  console.log('## currentChord', currentChord);
   const useClosestNote =
     lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE;
 
@@ -91,7 +88,6 @@ export const generateMelody = (chords, chordTime) => {
   let lastNoteWasOutOfChord = true;
   let lastNote;
   let beats = [];
-  console.log(PROBABILITIES);
   const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
 
   while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
@@ -113,16 +109,6 @@ export const generateMelody = (chords, chordTime) => {
         ];
 
     const noteChordRelation = getNoteChordRelation(currentChord, note);
-    console.log(
-      '#### lastNote:',
-      lastNote,
-      'chosen note:',
-      note,
-      'relation:',
-      noteChordRelation,
-      'duration',
-      duration,
-    );
 
     melody.push({
       time: melodyTime,
@@ -137,6 +123,5 @@ export const generateMelody = (chords, chordTime) => {
     lastNoteWasOutOfChord = isOutOfChord;
   }
 
-  console.log('!!! melodyTime ', melodyTime, 'chordTime', chordTime * 2);
   return { melody, melodyTime };
 };
