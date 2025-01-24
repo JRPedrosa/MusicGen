@@ -1,6 +1,6 @@
 import { kickPatterns, snarePatterns, hiHatPatterns } from './constants.js';
 import {
-  getRandomNumBetween,
+  getRandomIntBetween,
   getRandomFromArray,
   transposeNotes,
   appendTrackInfo,
@@ -72,7 +72,7 @@ export const generateNewTrack = (transport) => {
 
   // Define time signature and key
   const timeSignature = getRandomFromArray([3, 4, 4]); //Twice as likely to be 4/4
-  const randomPitchShift = getRandomNumBetween(0, 11); // All keys - C to B
+  const randomPitchShift = getRandomIntBetween(0, 11); // All keys - C to B
   // const randomPitchShift = 0;
 
   // Set BPM, timesignature and key

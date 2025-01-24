@@ -1,6 +1,7 @@
 import {
   getNoteChordRelation,
   calculateBeatsAndMeasure,
+  getRandomDecimalBetween,
 } from '../utils/utils.js';
 import { determineNextNote } from './nextNote.js';
 
@@ -13,6 +14,12 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
   let lastNote;
   let lastChord;
   let lastChordSymbol;
+
+  const PROBABILITIES = {
+    OUT_OF_CHORD: getRandomDecimalBetween(0.4, 0.8),
+    CLOSEST_NOTE: getRandomDecimalBetween(0.5, 0.9),
+    REST: getRandomDecimalBetween(0.05, 0.25),
+  };
 
   while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
     /* const currentChordIndex =
@@ -34,6 +41,7 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
       currentChordSymbol,
       lastChord,
       chordChanged,
+      PROBABILITIES,
     });
 
     const noteChordRelation = getNoteChordRelation(currentChord, note);
@@ -59,6 +67,14 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
   }
 
   console.log('chords', chords, 'melody', melody);
+  console.log(
+    Object.fromEntries(
+      Object.entries(PROBABILITIES).map(([key, value]) => [
+        key,
+        (value * 100).toFixed(1) + '%',
+      ]),
+    ),
+  );
 
   return { melody, melodyTime };
 };

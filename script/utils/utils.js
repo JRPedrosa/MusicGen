@@ -4,11 +4,21 @@ export const isMobileDevice = () => {
   return /Mobi|Android/i.test(navigator.userAgent);
 };
 
-export const getRandomFromArray = (array) =>
-  array[Math.floor(Math.random() * array.length)];
+export const getRandomFromArray = (array) => {
+  const arrayIndex =
+    crypto.getRandomValues(new Uint32Array(1))[0] % array.length;
+  return array[arrayIndex];
+};
 
-export const getRandomNumBetween = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+export const getRandomIntBetween = (min, max) => {
+  const range = max - min + 1;
+  const randomValue = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+  return Math.floor(randomValue * range) + min;
+};
+
+export const getRandomDecimalBetween = (min, max) => {
+  const randomValue = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+  return randomValue * (max - min) + min;
 };
 
 export const transposeNotes = (input, semitoneShift) => {

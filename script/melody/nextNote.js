@@ -5,12 +5,6 @@ import {
   getClosestAvailableNote,
 } from '../utils/utils.js';
 
-const PROBABILITIES = {
-  OUT_OF_CHORD: 0.7,
-  CLOSEST_NOTE: 0.8,
-  REST: 0.15,
-};
-
 export const determineNextNote = (params) => {
   const {
     beatWhereNoteWillLand,
@@ -18,6 +12,7 @@ export const determineNextNote = (params) => {
     lastNoteWasOutOfChord,
     currentChord,
     currentChordSymbol,
+    PROBABILITIES,
     /* lastChord,
     chordChanged, */
   } = params;
