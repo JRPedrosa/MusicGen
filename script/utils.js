@@ -134,9 +134,7 @@ export const appendTrackInfo = ({
 }) => {
   document.getElementById('tempo').textContent = `BPM: ${tempo}`;
   document.getElementById('key').textContent = `Key: ${key}`;
-  document.getElementById(
-    'melodySynth',
-  ).textContent = `MelodySynth: ${melodySynth}`;
+  document.getElementById('melodySynth').textContent = `Synth: ${melodySynth}`;
   document.getElementById('chords').textContent = `Chords: ${chords.map(
     (c) => c.name,
   )}`;
