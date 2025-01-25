@@ -62,7 +62,6 @@ export const settings = {
     'G5',
   ],
   durations: ['4n', '2n', '4n'],
-  // durations: ['4n', '2n', '4n', '8n', '8n', '8n', '8n', '8n'],
 };
 
 export const kickPatterns = {

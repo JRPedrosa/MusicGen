@@ -83,7 +83,7 @@ export const generateNewTrack = (transport) => {
   transport.timeSignature = timeSignature;
 
   // -------- Generate musical content --------
-  const { chords, chordTime } = generateChords(key); //We need block chord for the melody, so even with arpeggio this has to stay (?)
+  const { chords, chordTime } = generateChords(key); //We need block chords for the melody, so even with arpeggio this has to stay (?) do a benchmark
   const { chordsArpeggio } = generateChordsArpeggio(key);
   const { melody, melodyTime } = generateMelody(
     chords,
