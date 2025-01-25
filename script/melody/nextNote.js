@@ -37,34 +37,30 @@ export const determineNextNote = (params) => {
     };
   }
 
-  const currentChordisFromMinorKey =
-    allChords.chordsFromMinorkey.includes(currentChordSymbol);
+  const currentChordisBorrowed =
+    allChords.borrowedChords.includes(currentChordSymbol);
 
   // If last note was in, has xx% chance of choosing an out note
   const willChooseOutNote =
     !lastNoteWasOutOfChord &&
-    !currentChordisFromMinorKey &&
+    !currentChordisBorrowed &&
     Math.random() < PROBABILITIES.OUT_OF_CHORD;
 
   let motherScaleToChooseFrom = settings.scale;
-  if (currentChordisFromMinorKey) {
-    /* notesToUse = notesToUse.map((note) => {
-        return note.startsWith('G') ? note.replace('G', 'G#') : note;
-      }); */
-
+  if (currentChordisBorrowed) {
+    // Revise when adding more borrowed chords
     motherScaleToChooseFrom = motherScaleToChooseFrom.map((note) => {
       return note.startsWith('G') ? note.replace('G', 'G#') : note;
     });
   }
   let notesToUse = getInOutScaleNotes(
-    // settings.scale,
     motherScaleToChooseFrom,
     currentChord,
     !willChooseOutNote,
   );
 
-  //Probably add lastChord to the scope so if last chord was from minor
-  //  and this one isn't we should use close and resolve
+  // Probably add lastChord to the scope so if last chord borrowed
+  // and this one isn't, we should use close and resolve
   const useClosestNote =
     lastNoteWasOutOfChord || Math.random() < PROBABILITIES.CLOSEST_NOTE;
 
@@ -83,11 +79,12 @@ export const determineNextNote = (params) => {
     (note) => note.charAt(0) === chosenNote.charAt(0),
   ).length;
 
-  //If is out of chord or current chord is from minor, note is G and we are at the end of the measure so it doesn't carry over to the next diatonic chord
+  // If is out of chord or current chord is borrowed, note is G (in the future any note not part of the motherScale)
+  // and we are at the end of the measure so it doesn't carry over to the next diatonic chord
   const noteShouldHaveShortDuration =
     !finalNoteIsInTheCurrentChord ||
     (chosenNote &&
-      allChords.chordsFromMinorkey.includes(currentChordSymbol) &&
+      allChords.borrowedChords.includes(currentChordSymbol) &&
       chosenNote.charAt(0) === 'G' &&
       beatWhereNoteWillLand.beat >= 2);
 

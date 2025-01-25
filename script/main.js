@@ -79,7 +79,6 @@ const playBuffer = (buffer) => {
   // Create and append the new audio element
   const audioElement = new Audio(audioUrl);
   audioElement.controls = true;
-  // audioElement.loop = true;
 
   const wrapperDiv = document.createElement('div');
   wrapperDiv.appendChild(audioElement);
@@ -98,13 +97,13 @@ const updateProgress = (progress, intervalId) => {
   if (Math.round(progress) > 85) {
     clearInterval(intervalId);
     elements.loading.textContent = ``;
-    elements.loadingMessage.textContent = `Converting to WAV..`;
+    elements.loadingMessage.textContent = `Converting to WAV`;
 
     const messages = [
-      { text: `Normalizing the buffer..`, delay: 4000 },
-      { text: `Finishing processing..`, delay: 10000 },
+      { text: `Normalizing the buffer`, delay: 4000 },
+      { text: `Finishing processing`, delay: 10000 },
       { text: `Almost there!`, delay: 15000 },
-      { text: `Adding a cherry on top`, delay: 20000 },
+      { text: `Adding a cherry on top...`, delay: 20000 },
       { text: `I swear this is going to work`, delay: 27000 },
     ];
 
@@ -128,21 +127,6 @@ const clearAllTimeouts = () => {
 const setupEventListenersAndInit = () => {
   elements.offline.addEventListener('click', startOffline);
 
-  /* elements.outOfChordSlider.addEventListener('input', (event) => {
-    PROBABILITIES.OUT_OF_CHORD = parseFloat(event.target.value);
-    outOfChordValue.textContent = event.target.value;
-  });
-
-  elements.closestNoteSlider.addEventListener('input', (event) => {
-    PROBABILITIES.CLOSEST_NOTE = parseFloat(event.target.value);
-    closestNoteValue.textContent = event.target.value;
-  });
-
-  elements.restSlider.addEventListener('input', (event) => {
-    PROBABILITIES.REST = parseFloat(event.target.value);
-    restValue.textContent = event.target.value;
-  });
- */
   window.addEventListener('beforeunload', async () => {
     Tone.context.close();
   });

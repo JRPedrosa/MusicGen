@@ -23,8 +23,8 @@ export const allChords = {
   V: ['G2', 'D3', 'G3', 'B3', 'D4'],
   vi: ['A2', 'E3', 'A3', 'C4', 'E4'],
 
-  //Chords borrowed from minor key - always put in the array below so melodyGen.js can adapt
-  chordsFromMinorkey: ['III', 'III7', 'vii7', 'viidim'],
+  //Borrowed chords - always put in the array below so melodyGen.js can adapt
+  borrowedChords: ['III', 'III7', 'vii7', 'viidim'],
   III: ['E2', 'B2', 'E3', 'G#3', 'B3'],
   // III7: ['G#2', 'B2', 'E3', 'G#3', 'D4'],
   // vii7: ['B1', 'F2', 'A2', 'D3', 'F3'], //one octave down
@@ -36,18 +36,14 @@ export const commonProgressions = [
   ['I', 'vi', 'IV', 'V'],
   ['vi', 'V', 'IV', 'V'],
   ['vi', 'IV', 'V', 'iii'],
-  ['vi', 'ii', 'V', 'iii'],
   ['ii', 'V', 'I', 'vi'],
-  ['iii', 'IV', 'vi', 'V'],
   ['IV', 'V', 'vi', 'iii'],
-  ['V', 'IV', 'I', 'IV'],
+  ['V', 'IV', 'I', 'IV'], //??
 
-  //Progressions with chords from the minor key
+  //Progressions with borrowed chords
   ['vi', 'V', 'IV', 'III'],
   ['vi', 'IV', 'I', 'III'],
   ['I', 'III', 'IV', 'V'],
-
-  // ['vi', 'III', 'vi', 'III'],
 ];
 
 export const settings = {
@@ -86,6 +82,13 @@ export const kickPatterns = {
       { time: '0:2:2', note: 'C1' },
     ],
     4: [
+      { time: '0:0', note: 'C1' },
+      { time: '0:1', note: 'C1' },
+      { time: '0:2', note: 'C1' },
+      { time: '0:3', note: 'C1' },
+    ],
+    //Double 4 on the floor
+    5: [
       { time: '0:0', note: 'C1' },
       { time: '0:1', note: 'C1' },
       { time: '0:2', note: 'C1' },

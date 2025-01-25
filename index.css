@@ -27,6 +27,14 @@ body {
   z-index: 1000;
 }
 
+#versionMessage {
+  font-size: 12px;
+  margin-bottom: 20px;
+  color: grey;
+  margin-top: 5px;
+  height: 15px;
+}
+
 .audioDiv {
   max-height: 250px;
   min-height: 70px;
@@ -77,7 +85,6 @@ body {
 }
 
 .title {
-  margin-bottom: 40px;
   font-size: 30px;
   font-weight: bold;
   text-align: center;
@@ -101,35 +108,35 @@ button:hover {
   animation: dots 1.5s infinite steps(5, end);
 }
 
-/* @keyframes dots {
-  0% {
-    content: 'Generating';
-  }
-  25% {
-    content: 'Generating.';
-  }
-  50% {
-    content: 'Generating..';
-  }
-  75% {
-    content: 'Generating...';
-  }
-  100% {
-    content: 'Generating';
-  }
-} */
-
 @keyframes dots {
   0% {
     content: '.';
   }
-  25% {
+  10% {
     content: '..';
   }
-  50% {
+  20% {
     content: '...';
   }
-  75% {
+  30% {
+    content: '....';
+  }
+  40% {
+    content: '.....';
+  }
+  50% {
+    content: '......';
+  }
+  60% {
+    content: '.....';
+  }
+  70% {
+    content: '....';
+  }
+  80% {
+    content: '...';
+  }
+  90% {
     content: '..';
   }
   100% {
