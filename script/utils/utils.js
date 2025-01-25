@@ -1,4 +1,4 @@
-import { elements } from '../constants.js';
+import { elements, settings } from '../constants.js';
 
 export const isMobileDevice = () => {
   return /Mobi|Android/i.test(navigator.userAgent);
@@ -51,28 +51,51 @@ export const getInOutScaleNotes = (scale, chord, chordTones = true) => {
 };
 
 export const getClosestAvailableNote = (
-  targetNote,
-  notesToUse,
+  lastNote,
+  notesToUse, //Can be in or out of the current chord. It's chosen before
   motherScaleToChooseFrom,
 ) => {
   // Find the index of the target note in array2
-  let targetIndex = motherScaleToChooseFrom.indexOf(targetNote);
+  let targetIndex = motherScaleToChooseFrom.indexOf(lastNote);
 
   if (targetIndex === -1) {
-    //Edge case where lastNote was a G# and the chord changed so it isn't in the diatonic scale
-    targetIndex = motherScaleToChooseFrom.indexOf(targetNote.replace('#', ''));
-    if (!targetIndex) {
-      //Stupid fallback
-      console.error(' |||| UNKNOWN BUG ||||  DO NOT IGNORE |||| see below');
-      console.log(
-        'targetNote',
-        targetNote,
-        'notesToUse',
-        notesToUse,
-        'motherScaleToChooseFrom',
-        motherScaleToChooseFrom,
+    // Edge case where lastNote was non-diatonic and the chord changed so it isn't in the mother scale
+    const cleanLastNote = lastNote.replace('#', '').replace('b', '');
+
+    targetIndex =
+      motherScaleToChooseFrom.indexOf(cleanLastNote) ||
+      motherScaleToChooseFrom.indexOf(
+        `${cleanLastNote[0] + '#' + cleanLastNote[1]}`,
+      ) ||
+      motherScaleToChooseFrom.indexOf(
+        `${cleanLastNote[0] + '#' + cleanLastNote[1]}`,
       );
 
+    console.error(
+      'lastNote was "non-diatonic" to the currentCHord - CONFIRM:',
+      lastNote,
+      'notesToUse',
+      notesToUse,
+      'motherScaleToChooseFrom',
+      motherScaleToChooseFrom,
+    );
+    if (targetIndex === -1) {
+      // If still no match, log the error and return a random note from the available pool
+      console.error(' |||| UNKNOWN BUG ||||  DO NOT IGNORE |||| 1');
+      console.error(
+        'lastNote:',
+        lastNote,
+        'cleanLastNote',
+        cleanLastNote,
+        'notesToUse:',
+        notesToUse,
+        'motherScaleToChooseFrom:',
+        motherScaleToChooseFrom,
+        'targetIndex',
+        targetIndex,
+      );
+
+      // Fallback
       return getRandomFromArray(notesToUse);
     }
   }
@@ -97,7 +120,24 @@ export const getClosestAvailableNote = (
     findInDirection(targetIndex, searchUp ? 1 : -1) || // First attempt
     findInDirection(targetIndex, searchUp ? -1 : 1); // Opposite direction
 
-  return closestNote || 'No valid note found'; // Fallback message
+  if (!closestNote) {
+    console.error(' |||| UNKNOWN BUG ||||  DO NOT IGNORE |||| 2');
+    console.error(
+      'lastNote:',
+      lastNote,
+      'closestNote',
+      closestNote,
+      'notesToUse:',
+      notesToUse,
+      'motherScaleToChooseFrom:',
+      motherScaleToChooseFrom,
+      'targetIndex',
+      targetIndex,
+    );
+    return getRandomFromArray(notesToUse);
+  }
+
+  return closestNote;
 };
 
 export const getNoteChordRelation = (chord, singleNote) => {
@@ -121,11 +161,7 @@ export const getNoteChordRelation = (chord, singleNote) => {
 
 export const calculateBeatsAndMeasure = (notes, timeSignature) => {
   const beats = [];
-  const beatDurationMap = {
-    '4n': 1,
-    '2n': 2,
-    '8n': 0.5,
-  };
+  const beatDurationMap = settings.beatDurationMap;
 
   let totalBeats = 0;
 

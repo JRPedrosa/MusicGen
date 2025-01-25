@@ -34,7 +34,6 @@ export const allChords = {
 export const commonProgressions = [
   ['I', 'V', 'vi', 'IV'],
   ['I', 'vi', 'IV', 'V'],
-  ['vi', 'V', 'IV', 'V'],
   ['vi', 'IV', 'V', 'iii'],
   ['ii', 'V', 'I', 'vi'],
   ['IV', 'V', 'vi', 'iii'],
@@ -61,7 +60,13 @@ export const settings = {
     'F5',
     'G5',
   ],
+  // Dotted notes are fucking this up. Figure out why
   durations: ['4n', '2n', '4n'],
+  beatDurationMap: {
+    '4n': 1,
+    '2n': 2,
+    '8n': 0.5,
+  },
 };
 
 export const kickPatterns = {

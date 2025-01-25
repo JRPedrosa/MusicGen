@@ -1,24 +1,31 @@
+import { allChords } from '../constants.js';
 import {
   getNoteChordRelation,
   calculateBeatsAndMeasure,
-  getRandomDecimalBetween,
+  // getRandomDecimalBetween,
 } from '../utils/utils.js';
 import { determineNextNote } from './nextNote.js';
 
 export const generateMelody = (chords, chordTime, timeSignature) => {
-  const maxMelodyTime = chordTime * 2 - 3; //Ensures the melody doesn't surpass a double loop of the chords
+  const quarterNoteInSeconds = chords[1].time / 4;
+  const maxMelodyTime = chordTime * 2 - quarterNoteInSeconds; //Ensures the melody doesn't surpass a double loop of the chords
   const melody = [];
   let beats = [];
   let melodyTime = 0;
   let lastNoteWasOutOfChord = true;
   let lastNote;
-  let lastChord;
   let lastChordSymbol;
 
-  const PROBABILITIES = {
+  /* const PROBABILITIES = {
     OUT_OF_CHORD: getRandomDecimalBetween(0.4, 0.8),
     CLOSEST_NOTE: getRandomDecimalBetween(0.5, 0.9),
     REST: getRandomDecimalBetween(0.05, 0.25),
+  }; */
+
+  const PROBABILITIES = {
+    OUT_OF_CHORD: 0.5, //0.7 or 0.5BETTER
+    CLOSEST_NOTE: 0.8, //0.8
+    REST: 0.15, // 0.15
   };
 
   while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
@@ -30,6 +37,13 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
     const currentChord = chords[currentChordIndex].notes;
     const currentChordSymbol = chords[currentChordIndex].name;
     const chordChanged = currentChordSymbol !== lastChordSymbol;
+    const currentChordisBorrowed =
+      allChords.borrowedChords.includes(currentChordSymbol);
+    const lastChordWasBorrowed =
+      allChords.borrowedChords.includes(lastChordSymbol);
+    const isLastQuarterNote =
+      beatWhereNoteWillLand.measure === 8 &&
+      beatWhereNoteWillLand.beat >= timeSignature - 1;
 
     console.warn(currentChordSymbol);
     console.log(beatWhereNoteWillLand);
@@ -39,8 +53,10 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
       lastNoteWasOutOfChord,
       currentChord,
       currentChordSymbol,
-      lastChord,
+      currentChordisBorrowed,
+      lastChordWasBorrowed,
       chordChanged,
+      isLastQuarterNote,
       PROBABILITIES,
     });
 
@@ -56,16 +72,25 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
       time: melodyTime,
       note,
       duration,
+      isOutOfChord,
+      noteChordRelation,
+      currentChordSymbol,
+      measure: beatWhereNoteWillLand.measure,
     });
 
     beats = calculateBeatsAndMeasure(melody, timeSignature);
     melodyTime += Tone.Time(duration).toSeconds();
     lastNote = note;
     lastNoteWasOutOfChord = isOutOfChord;
-    lastChord = currentChord;
     lastChordSymbol = currentChordSymbol;
   }
 
+  logInfo({ melody, chords, PROBABILITIES });
+
+  return { melody, melodyTime };
+};
+
+const logInfo = ({ melody, chords, PROBABILITIES }) => {
   console.log('chords', chords, 'melody', melody);
   console.log(
     Object.fromEntries(
@@ -75,6 +100,47 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
       ]),
     ),
   );
+  const totalNotes = melody.length;
 
-  return { melody, melodyTime };
+  // Calculate the percentage of isOutOfChord notes
+  const outOfChordCount = melody.filter((item) => item.isOutOfChord).length;
+  const outOfChordPercentage = (outOfChordCount / totalNotes) * 100;
+
+  // Calculate the percentage of undefined notes
+  const undefinedNoteCount = melody.filter(
+    (item) => item.note === undefined,
+  ).length;
+  const undefinedNotePercentage = (undefinedNoteCount / totalNotes) * 100;
+
+  // Log the results
+  console.log(
+    `Percentage of out of chord notes: ${outOfChordPercentage.toFixed(2)}%`,
+  );
+  console.log(`Percentage of pauses: ${undefinedNotePercentage.toFixed(2)}%`);
+
+  let measures = {};
+
+  // Process the input data
+  melody.forEach((item) => {
+    // If this measure doesn't exist in the measures object, create it
+    if (!measures[item.measure]) {
+      measures[item.measure] = {
+        chordSymbol: item.currentChordSymbol,
+        relations: [],
+      };
+    }
+    // Add the noteChordRelation to the relations array
+    // if (item.noteChordRelation !== 'PAUSE') {
+    measures[item.measure].relations.push(item.noteChordRelation);
+    // }
+  });
+
+  // Now log the results
+  for (let measure in measures) {
+    console.log(
+      `Bar ${measure}:`,
+      `Chord: ${measures[measure].chordSymbol} - `,
+      `${measures[measure].relations.join(', ')}`,
+    );
+  }
 };
