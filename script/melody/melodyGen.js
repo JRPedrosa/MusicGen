@@ -28,7 +28,7 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
     REST: 0.15, // 0.15
   };
 
-  while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
+  while (melodyTime < maxMelodyTime) {
     if (melodyTime > maxMelodyTime * 2) {
       alert(
         "Error: Melody time exceeded the allowed limit. Please refresh the app.",
@@ -93,12 +93,11 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
     lastChordSymbol = currentChordSymbol;
   }
 
-  logInfo({ melody, chords, PROBABILITIES });
-
+  logInfo({ melody, chords, PROBABILITIES, melodyTime, chordTime });
   return { melody, melodyTime };
 };
 
-const logInfo = ({ melody, chords, PROBABILITIES }) => {
+const logInfo = ({ melody, chords, PROBABILITIES, melodyTime, chordTime }) => {
   console.log("chords", chords, "melody", melody);
   console.log(
     Object.fromEntries(
@@ -151,4 +150,5 @@ const logInfo = ({ melody, chords, PROBABILITIES }) => {
       `${measures[measure].relations.join(", ")}`,
     );
   }
+  console.log("chordTime", chordTime, "melodyTime", melodyTime);
 };
