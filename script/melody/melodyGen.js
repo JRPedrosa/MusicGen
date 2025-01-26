@@ -1,10 +1,10 @@
-import { allChords } from '../constants.js';
+import { allChords } from "../constants.js";
 import {
   getNoteChordRelation,
   calculateBeatsAndMeasure,
   // getRandomDecimalBetween,
-} from '../utils/utils.js';
-import { determineNextNote } from './nextNote.js';
+} from "../utils/utils.js";
+import { determineNextNote } from "./nextNote.js";
 
 export const generateMelody = (chords, chordTime, timeSignature) => {
   const quarterNoteInSeconds = chords[1].time / 4;
@@ -29,6 +29,14 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
   };
 
   while (melodyTime < maxMelodyTime || lastNoteWasOutOfChord) {
+    if (melodyTime > maxMelodyTime * 2) {
+      alert(
+        "Error: Melody time exceeded the allowed limit. Please refresh the app.",
+      );
+      throw new Error(
+        "Melody time exceeded the allowed limit. Stopping execution.",
+      );
+    }
     /* const currentChordIndex =
       Math.floor(melodyTime / Tone.Time('1n').toSeconds()) % chords.length; */
     const beatWhereNoteWillLand = beats[beats.length - 1] || { measure: 1 }; //For the first pass
@@ -62,9 +70,9 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
 
     const noteChordRelation = getNoteChordRelation(currentChord, note);
     console.log(
-      `${note} - ${isOutOfChord ? 'OUT - ' : 'IN - '}`,
+      `${note} - ${isOutOfChord ? "OUT - " : "IN - "}`,
       noteChordRelation,
-      ' - ',
+      " - ",
       duration,
     );
 
@@ -91,12 +99,12 @@ export const generateMelody = (chords, chordTime, timeSignature) => {
 };
 
 const logInfo = ({ melody, chords, PROBABILITIES }) => {
-  console.log('chords', chords, 'melody', melody);
+  console.log("chords", chords, "melody", melody);
   console.log(
     Object.fromEntries(
       Object.entries(PROBABILITIES).map(([key, value]) => [
         key,
-        (value * 100).toFixed(1) + '%',
+        (value * 100).toFixed(1) + "%",
       ]),
     ),
   );
@@ -140,7 +148,7 @@ const logInfo = ({ melody, chords, PROBABILITIES }) => {
     console.log(
       `Bar ${measure}:`,
       `Chord: ${measures[measure].chordSymbol} - `,
-      `${measures[measure].relations.join(', ')}`,
+      `${measures[measure].relations.join(", ")}`,
     );
   }
 };
